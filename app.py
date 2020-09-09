@@ -2,8 +2,22 @@ import os, time
 import uuid
 
 from flask import Flask, render_template, request, send_file,request, jsonify
+from flask_api import status
+
+from AnnotationManager import annotateVideo
+
+from flask import Flask
+from config import Config
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 app = Flask(__name__)
+app.config.from_object(Config)
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+from app import routes, models
+
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
@@ -30,24 +44,40 @@ def annotate():
         file.save(video_file)
 
         # Annotate video for emotions
-        # if 'emo' in request.args:
-            # annotate_emo(id)
-        # if 'emo' in request.args:
-            # annotate_behav(id)
-        # if 'emo' in request.args:
-            # annotate_threat(id)
+        if 'emo' in request.args:
+            emo_annotation = request.args['emo']
 
+        else:
+            response = {"error_id": "Bad Request", "error_message": "parameters missing : 'emo' "}
+            return response, status.HTTP_400_BAD_REQUEST
+
+
+        if 'behav' in request.args:
+            behav_annotation = request.args['behav']
+
+        else:
+            response = {"error_id": "Bad Request", "error_message": "parameters missing : 'behav' "}
+            return response, status.HTTP_400_BAD_REQUEST
+
+        if 'threat' in request.args:
+            threat_annotation = request.args['threat']
+
+        else:
+            response = {"error_id": "Bad Request", "error_message": "parameters missing : 'emo' "}
+            return response, status.HTTP_400_BAD_REQUEST
+
+    annotateVideo(id,emo_annotation,behav_annotation,threat_annotation)
 
     response = {"themobe_id":id,"video":filename,"video_status":"processing"}
     return jsonify(response)
 
-@app.route("/viewResults")
-def viewResults(filename):
-    if os.path.isfile(APP_ROOT + filename):
-        print(True)
-        return render_template("index1.html", fileExists=True)
-    else:
-        return render_template("index1.html", fileExists=False)
+@app.route("/poll")
+def polling():
+    if 'themobe_id' in request.args:
+        id = request.args.get('themobe_id')
+
+
+
 
 
 @app.route("/download")
