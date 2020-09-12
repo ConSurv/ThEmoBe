@@ -81,12 +81,12 @@ def annotate():
         else:
             requested_expiry=DEFAULT_EXPIRES_IN
 
-    last_polled_time = time.time() * 1000
-    hashed_id = str(uuid.uuid4())
-    task = models.Tasks(id=hashed_id, themobe_id=str(id), expires_in=requested_expiry, interval=DEFAULT_POLLING_INTERVAL,
-                        last_polled_time=last_polled_time, task_status="PROCESSING")
-    db.session.add(task)
-    db.session.commit()
+    # last_polled_time = time.time() * 1000
+    # hashed_id = str(uuid.uuid4())
+    # task = models.Tasks(id=hashed_id, themobe_id=str(id), expires_in=requested_expiry, interval=DEFAULT_POLLING_INTERVAL,
+    #                     last_polled_time=last_polled_time, task_status="PROCESSING")
+    # db.session.add(task)
+    # db.session.commit()
     # models.saveTasks(id, requested_expiry, DEFAULT_POLLING_INTERVAL, task_status="PROCESSING")
 
     # Need to be async
