@@ -15,6 +15,7 @@ from downloadManager import manageDownload
 from pollingManager import handlePolling
 
 app = Flask(__name__)
+
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app,db)
@@ -56,7 +57,6 @@ def annotate():
         # Annotate video for emotions
         if 'emo' in request.form:
             emo_annotation = request.form['emo']
-
         else:
             response = {"error_id": "Bad Request", "error_message": "parameters missing : 'emo' "}
             return jsonify(response), status.HTTP_400_BAD_REQUEST
@@ -64,30 +64,33 @@ def annotate():
 
         if 'behav' in request.form:
             behav_annotation = request.form['behav']
-
         else:
             response = {"error_id": "Bad Request", "error_message": "parameters missing : 'behav' "}
             return jsonify(response), status.HTTP_400_BAD_REQUEST
 
         if 'threat' in request.form:
             threat_annotation = request.form['threat']
-
         else:
             response = {"error_id": "Bad Request", "error_message": "parameters missing : 'emo' "}
             return jsonify(response), status.HTTP_400_BAD_REQUEST
 
         if 'expires_in' in request.form:
             requested_expiry = request.form['expires_in']
+            if(requested_expiry>DEFAULT_EXPIRES_IN):
+                # Cannot allow a expiresin more than default
+                requested_expiry=DEFAULT_EXPIRES_IN
         else:
             requested_expiry=DEFAULT_EXPIRES_IN
 
-    last_polled_time = time.time() * 1000
+    # Saving task details to database and call annotation
+    task_generated_time = int(round(time.time() * 1000))
+    print("init-time"+str(task_generated_time))
+    last_polled_time = task_generated_time
     hashed_id = str(uuid.uuid4())
     task = models.Tasks(id=hashed_id, themobe_id=str(id), expires_in=requested_expiry, interval=DEFAULT_POLLING_INTERVAL,
-                        last_polled_time=last_polled_time, task_status="PROCESSING")
+                        task_generated_time=task_generated_time,last_polled_time=last_polled_time, task_status="PROCESSING")
     db.session.add(task)
     db.session.commit()
-    # models.saveTasks(id, requested_expiry, DEFAULT_POLLING_INTERVAL, task_status="PROCESSING")
 
     # Need to be async
     annotateVideo(id,emo_annotation,behav_annotation,threat_annotation)
@@ -100,17 +103,44 @@ def annotate():
 def polling():
     if 'themobe_id' in request.args:
         id = request.args.get('themobe_id')
-        response= handlePolling(id)
-        return jsonify(response)
+        if (db.session.query(models.Tasks).filter_by(themobe_id=id).scalar()) is None:
+            response = {"error_id": "Unauthorized Request", "error_message": "'themobe_id' does not exist"}
+            return jsonify(response), status.HTTP_401_UNAUTHORIZED
+
+        else:
+            # task = models.Tasks.query().filter(models.Tasks.themobe_id == id).first()
+            task = db.session.query(models.Tasks)
+            task = task.filter(models.Tasks.themobe_id == id)
+            record = task.one()
+            task_generated_time =  record.task_generated_time
+
+
+            print(record)
+           # update polling
+            current_time = int(round(time.time() * 1000))
+            record.last_polled_time = current_time
+            db.session.commit()
+
+          # Update interval when polling is heavy
+          #   interval =
+            interval =5
+            record.interval = interval
+            db.session.commit()
+
+
+
+    else:
+        response = {"error_id": "Bad Request", "error_message": "'themobe_id' is missing"}
+        return jsonify(response), status.HTTP_400_BAD_REQUEST
+
+
 
 @app.route("/download")
 def downloadFile():
-    # For windows you need to use drive name [ex: F:/Example.pdf]
     if 'themobe_id' in request.args:
         id = request.args.get('themobe_id')
         return manageDownload(id,APP_ROOT)
 
 
 if __name__ == "__main__":
-    # db.create_all()
     app.run(debug=True)
