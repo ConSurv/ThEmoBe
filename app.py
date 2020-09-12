@@ -7,6 +7,9 @@ from flask import request, jsonify
 from flask_api import status
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.automap import automap_base
+from sqlalchemy import Table, create_engine
+from sqlalchemy import create_engine, MetaData, Table,Column
 
 from AnnotationManager import annotateVideo
 from config import Config
@@ -101,6 +104,7 @@ def annotate():
 
 @app.route("/poll")
 def polling():
+
     if 'themobe_id' in request.args:
         id = request.args.get('themobe_id')
         if (db.session.query(models.Tasks).filter_by(themobe_id=id).scalar()) is None:
@@ -113,27 +117,34 @@ def polling():
             task = task.filter(models.Tasks.themobe_id == id)
             record = task.one()
             task_generated_time =  record.task_generated_time
-
-
-            print(record)
-           # update polling
+            expires_in= record.expires_in
             current_time = int(round(time.time() * 1000))
-            record.last_polled_time = current_time
-            db.session.commit()
+            interval = record.interval
+            last_polled_time = record.last_polled_time
+            task_status= record.task_status
 
-          # Update interval when polling is heavy
-          #   interval =
-            interval =5
-            record.interval = interval
-            db.session.commit()
+            # check for the authenticity of id
+            if(task_generated_time+expires_in > current_time):
+                response = {"error_id": "access denied", "error_message": "'themobe_id' expired."}
+                return jsonify(response), status.HTTP_400_BAD_REQUEST
 
+            # Update interval when polling is heavy
+            if (last_polled_time + interval*1000 > current_time):
+                record.interval = interval+3
+                db.session.commit()
+                response = {"error_id": "slow down", "error_message": "polling is too heavy"}
+                return jsonify(response), status.HTTP_400_BAD_REQUEST
 
+            if (task_status!="ANNOTATED"):
+                # update polling
+                record.last_polled_time = current_time
+                db.session.commit()
+                response = {"error_id": "task not completed", "error_message": "annotation process is taking time."}
+                return jsonify(response), status.HTTP_400_BAD_REQUEST
 
     else:
         response = {"error_id": "Bad Request", "error_message": "'themobe_id' is missing"}
         return jsonify(response), status.HTTP_400_BAD_REQUEST
-
-
 
 @app.route("/download")
 def downloadFile():
