@@ -4,40 +4,13 @@
 	templated.co @templatedco
 	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
 -->
-
-<Script>
-
-
-function uploadFile(file) {
-  var url = 'http://127.0.0.1:5000/annotate'
-  var xhr = new XMLHttpRequest()
-  var formData = new FormData()
-  xhr.open('POST', url, true)
-
-  xhr.addEventListener('readystatechange', function(e) {
-    if (xhr.readyState == 4 && xhr.status == 200) {
-      // Done. Inform the user
-    }
-    else if (xhr.readyState == 4 && xhr.status != 200) {
-      // Error. Inform the user
-    }
-  })
-
-  formData.append('video', file)
-  formData.append("emo","True")
-  formData.append("behav","True")
-  formData.append("threat","True")
-  xhr.send(formData)
-}
-
-</Script>
 <html>
 	<head>
 		<title>ThEmoBe</title>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="assets/css/main.css" />
-		<script src="dropzone-5.7.0\dist\dropzone.js"></script>
+		<!-- <script src="C:\Users\User\Downloads\dropzone-5.7.0\dropzone-5.7.0\dist\dropzone.js"></script> -->
 	</head>
 	<body>
 
@@ -111,13 +84,37 @@ function uploadFile(file) {
 			<section id="one" class="wrapper style2">
 				<div class="inner">
 					<div class="grid-style">
-						<div class="box">
-						  <form action="/file-upload" class="dropzone">
-							<!-- <div class="fallback"> -->
-							  <input name="file" type="file" multiple />
-							<!-- </div> -->
-						  </form>
+
+						<div>
+							<div class="box">
+								<div class="image fit">
+									<img src="images/pic02.jpg" alt="" />
+								</div>
+								<div class="content">
+									<header class="align-center">
+										<h2>Select the required annotations</h2>
+									</header>
+									<div class="6u 12u$(small)">
+										<input type="checkbox" id="emotion" name="emotion">
+										<label for="emotion">Emotion </label>
+									</div>
+									<div class="6u$ 12u$(small)">
+										<input type="checkbox" id="behavior" name="behavior">
+										<label for="behavior">Behavior</label>
+									</div>
+									<div class="6u 12u$(small)">
+										<input type="checkbox" id="threat" name="threat">
+										<label for="threat">Threat</label>
+									</div>
+									<footer class="align-center">
+										<a href="#" class="button alt">UPLOAD</a>
+									</footer>
+									
+																
+								</div>
+							</div>
 						</div>
+
 						<div>
 							<div class="box">
 								<div class="image fit">
