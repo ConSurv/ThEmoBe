@@ -4,33 +4,6 @@
 	templated.co @templatedco
 	Released for free under the Creative Commons Attribution 3.0 license (templated.co/license)
 -->
-
-<Script>
-
-
-function uploadFile(file) {
-  var url = 'http://127.0.0.1:5000/annotate'
-  var xhr = new XMLHttpRequest()
-  var formData = new FormData()
-  xhr.open('POST', url, true)
-
-  xhr.addEventListener('readystatechange', function(e) {
-    if (xhr.readyState == 4 && xhr.status == 200) {
-      // Done. Inform the user
-    }
-    else if (xhr.readyState == 4 && xhr.status != 200) {
-      // Error. Inform the user
-    }
-  })
-
-  formData.append('video', file)
-  formData.append("emo","True")
-  formData.append("behav","True")
-  formData.append("threat","True")
-  xhr.send(formData)
-}
-
-</Script>
 <html>
 	<head>
 		<title>ThEmoBe</title>
@@ -39,6 +12,49 @@ function uploadFile(file) {
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<script src="dropzone-5.7.0\dist\dropzone.js"></script>
 	</head>
+	<Script>
+
+
+		function uploadFile() {
+			var emo = document.getElementById('emotion')
+			var behav = document.getElementById('behavior')
+			var threat = document.getElementById('threat')
+			var video = document.getElementById('video').files[0]
+
+			if (video.value==''){
+				alert("Please upload the video to be annotated");
+				return false;
+			}
+			if (emo.checked==false && behav.checked==false && threat.checked==false){
+				alert("Atleast select an annotation");
+				return false;
+			}
+			
+
+		  var url = 'http://127.0.0.1:5000/annotate'
+		  var xhr = new XMLHttpRequest()
+		  var formData = new FormData()
+		  xhr.open('POST', url, true)
+		
+		  xhr.addEventListener('readystatechange', function(e) {
+			if (xhr.readyState == 4 && xhr.status == 200) {
+				console.log(this.responseText)
+				var response = this.responseText;
+				var json = JSON.parse(response);
+			}
+			else if (xhr.readyState == 4 && xhr.status != 200) {
+			  // Error. Inform the user
+			}
+		  })
+		
+		  formData.append('video', video)
+		  if(emo.checked==true) { formData.append("emo","True") } else {formData.append("emo","False")}
+		  if(emo.checked==true) { formData.append("behav","True") } else {formData.append("behav","False")}
+		  if(emo.checked==true) { formData.append("threat","True") } else {formData.append("threat","False")}
+		  xhr.send(formData)
+		}
+		
+		</Script>
 	<body>
 
 		<!-- Header -->
@@ -53,7 +69,7 @@ function uploadFile(file) {
 					<li><a href="index.html">Home</a></li>
 					<li><a href="generic.html">Generic</a></li>
 					<li><a href="elements.html">Elements</a></li>
-					<li><a href="elements.html">Register</a></li>
+					<li><a href="register.html">Register</a></li>
 					<li><a href="elements.html">Login</a></li>
 				</ul>
 			</nav>
@@ -111,12 +127,41 @@ function uploadFile(file) {
 			<section id="one" class="wrapper style2">
 				<div class="inner">
 					<div class="grid-style">
-						<div class="box">
-						  <form action="/file-upload" class="dropzone">
-							<!-- <div class="fallback"> -->
-							  <input name="file" type="file" multiple />
-							<!-- </div> -->
-						  </form>
+						<div class="box"> 
+							<h2>
+								Annotate Video
+							</h2>
+								<!-- <div>
+								<form class="dropzone" name="uploadForm">
+									 <div class="fallback"> 
+									  <input name="file" type="file" />
+									</div> 
+								</div> -->
+								<form name="uploadForm" enctype="multipart/form-data">
+									<input type="file" name="video" id="video" required>
+
+									<div class="content" style = "position:relative; left:20px; top:2px;">
+									<header class="align-center">
+										<h2>Select the required annotations</h2>
+									</header>
+									<div class="6u 12u$(small)">
+										<input type="checkbox" id="emotion" name="emotion" value="emo">
+										<label for="emotion">Emotion </label>
+									</div>
+									<div class="6u$ 12u$(small)">
+										<input type="checkbox" id="behavior" name="behavior" value="behav">
+										<label for="behavior">Behavior</label>
+									</div>
+									<div class="6u 12u$(small)">
+										<input type="checkbox" id="threat" name="threat" value="threat">
+										<label for="threat">Threat</label>
+									</div>									
+									</div>
+								</form>	
+								<div class="content" style = "position:relative; left:200px; top:0px;">
+									<button type="submit" name="upload" id="uploadS" form="uplodForm" onclick="uploadFile()">ANNOTATE</button>
+								</div>
+
 						</div>
 						<div>
 							<div class="box">
@@ -128,14 +173,15 @@ function uploadFile(file) {
 										<p>mattis elementum sapien pretium tellus</p>
 										<h2>Vestibulum sit amet</h2>
 									</header>
-									<p> Cras aliquet urna ut sapien tincidunt, quis malesuada elit facilisis. Vestibulum sit amet tortor velit. Nam elementum nibh a libero pharetra elementum. Maecenas feugiat ex purus, quis volutpat lacus placerat malesuada.</p>
+									<p>Loading</p>
+									<div class="loader"></div>
+									
 									<footer class="align-center">
 										<a href="#" class="button alt">DOWNLOAD</a>
 									</footer>
 								</div>
 							</div>
 						</div>
-
 					</div>
 				</div>
 			</section>
@@ -244,7 +290,7 @@ function uploadFile(file) {
 							<h3>Project Details</h3>
 						</header>
 						<p>
-							Github : <br>
+							Github : <a href="https://github.com/ConSurv/ThEmoBe">https://github.com/ConSurv/ThEmoBe</a><br>
 							<a href="">Dataset Download</a><br>
 							<a href="">Models Download</a>
 						</p>
