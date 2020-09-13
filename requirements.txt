@@ -1,0 +1,10 @@
+sk-video
+squarify
+flask
+flask_api
+flask_sqlalchemy
+flask_migrate
+torch
+torchvision
+keras
+tensorflow
