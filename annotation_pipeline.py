@@ -1,9 +1,13 @@
+from flask import jsonify
+import asyncio
+
+import models
 from model.load_behaviour_model_from_checkpoint_2 import *
 from CVND_Exercises_2_2_YOLO.get_cropped_human_frames import *
 from model.get_behaviour_features_6 import *
 from model.loading_emotion_model_7 import *
 from model.face_detector_8 import *
-# from model.create_gsom_object_10 import *
+from model.create_gsom_object_10 import *
 from Parallel_GSOM_for_HAAP.create_gsom_objects import *
 from model.bounding_box_11 import *
 
@@ -11,7 +15,6 @@ from model.bounding_box_11 import *
 behaviour_model = create_behaviour_model_from_checkpoint()
 
 emotion_model = create_emotion_model_from_checkpoint()
-
 
 
 def annotateVideo(APP_ROOT, video_path, emo_annotation,behav_annotation,threat_annotation, video_id):
@@ -46,6 +49,6 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation,behav_annotation,threat_a
 
     plot_and_save_bounding_boxes(APP_ROOT, predictions, frames_list, coordinates_array, video_id, what_to_plot)
 
-    return "Video annotated successfully!"
+    return "Sucessfully annotated!"
 
 
