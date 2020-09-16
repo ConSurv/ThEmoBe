@@ -4,7 +4,7 @@ import time
 import uuid
 import threading
 
-from flask import Flask
+from flask import Flask, send_file
 from flask import request, jsonify
 from flask_api import status
 from flask_migrate import Migrate
@@ -13,11 +13,9 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import Table, create_engine
 from sqlalchemy import create_engine, MetaData, Table, Column
 
-# from annotation_pipeline import annotateVideoAsync
-from annotation_pipeline import annotateVideo
+# from annotation_pipeline import annotateVideo
 from config import Config
 import models
-from downloadManager import manageDownload
 from pollingManager import handlePolling
 
 app = Flask(__name__)
@@ -34,10 +32,11 @@ APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 DEFAULT_EXPIRES_IN = 900  # In sec
 DEFAULT_POLLING_INTERVAL = 2  # In sec
+DEFAULT_PERSISTENT_STATUS = True
 
 
 @app.route("/annotate", methods=["POST"])
-async def annotate():
+def annotate():
     target = "/".join([APP_ROOT, "toAnnotate"])
 
     if not os.path.isdir(target):
@@ -81,30 +80,46 @@ async def annotate():
 
         if 'expires_in' in request.form:
             requested_expiry = request.form['expires_in']
-            if (requested_expiry > DEFAULT_EXPIRES_IN):
-                # Cannot allow a expiresin more than default
+            if (int(requested_expiry) > DEFAULT_EXPIRES_IN):
+                # Cannot allow a expires_in more than default
                 requested_expiry = DEFAULT_EXPIRES_IN
         else:
             requested_expiry = DEFAULT_EXPIRES_IN
 
+
+        if 'persistent_status' in request.form:
+            persistent_status = request.form['persistent_status']
+            persistent_status = persistent_status
+        else:
+            persistent_status = DEFAULT_PERSISTENT_STATUS
+
+
     # Saving task details to database and call annotation
-    task_generated_time = int(round(time.time() * 1000))
-    print("init-time" + str(task_generated_time))
-    last_polled_time = task_generated_time
+    last_polled_time = int(round(time.time() * 1000))
     hashed_id = str(uuid.uuid4())
     task = models.Tasks(id=hashed_id, themobe_id=str(id), expires_in=requested_expiry,
-                        interval=DEFAULT_POLLING_INTERVAL,
-                        task_generated_time=task_generated_time, last_polled_time=last_polled_time,
-                        task_status="PROCESSING")
+                        interval=DEFAULT_POLLING_INTERVAL,last_polled_time=last_polled_time,
+                        task_status="PROCESSING",download_count=0,persistent_status=persistent_status)
     db.session.add(task)
     db.session.commit()
 
     # Need to be async
-    annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,video_id)
+    annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id))
 
     response = {"themobe_id": id, "video": filename, "video_status": "processing", "expires_in": requested_expiry,
                 "interval": DEFAULT_POLLING_INTERVAL}
     return jsonify(response)
+
+def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
+    if(True):
+        task = db.session.query(models.Tasks)
+        task = task.filter(models.Tasks.themobe_id == id)
+        record = task.one()
+        current_time = int(round(time.time() * 1000))
+        record.task_status = "ANNOTATED"
+        record.download_allocation_time = current_time
+        record.download_req_id = str(uuid.uuid4())
+        db.session.commit()
 
 @app.route("/poll")
 def polling():
@@ -119,30 +134,38 @@ def polling():
             task = db.session.query(models.Tasks)
             task = task.filter(models.Tasks.themobe_id == id)
             record = task.one()
-            task_generated_time = record.task_generated_time
-            expires_in = record.expires_in
             current_time = int(round(time.time() * 1000))
             interval = record.interval
             last_polled_time = record.last_polled_time
             task_status = record.task_status
-
-            # check for the authenticity of id
-            if (task_generated_time + expires_in > current_time):
-                response = {"error_id": "access denied", "error_message": "'themobe_id' expired."}
-                return jsonify(response), status.HTTP_400_BAD_REQUEST
+            download_req_id = record.download_req_id
 
             # Update interval when polling is heavy
             if (last_polled_time + interval * 1000 > current_time):
                 record.interval = interval + 3
                 db.session.commit()
-                response = {"error_id": "slow down", "error_message": "polling is too heavy"}
+                response = {"error_id": "slow down", "error_message": "heavy polling adding load to endpoint"}
                 return jsonify(response), status.HTTP_400_BAD_REQUEST
 
-            if (task_status != "ANNOTATED"):
+            if (task_status == "DOWNLOADED" or task_status == "EXPIRED"):
                 # update polling
                 record.last_polled_time = current_time
                 db.session.commit()
-                response = {"error_id": "task not completed", "error_message": "annotation process is taking time."}
+                response = {"error_id": "task completed", "error_message": "task already downlaoded or expired."}
+                return jsonify(response), status.HTTP_400_BAD_REQUEST
+
+            if (task_status == "PROCESSING"):
+                # update polling
+                record.last_polled_time = current_time
+                db.session.commit()
+                response = {"error_id": "task not completed", "error_message": "annotation engine is still processing the video"}
+                return jsonify(response), status.HTTP_400_BAD_REQUEST
+
+            if (task_status == "ANNOTATED"):
+                # update polling
+                record.last_polled_time = current_time
+                db.session.commit()
+                response = {"download_req_id":download_req_id,"task status": "Annotated","download status": "Downloadable"}
                 return jsonify(response), status.HTTP_400_BAD_REQUEST
 
     else:
@@ -160,12 +183,97 @@ def polling():
 #     # return jsonify({"result": result})
 #     return 1
 #
+def manageDownload(id, APP_ROOT):
+    path = "/".join([APP_ROOT, "output"])
+    # print(path)
+    video = path + '/' + id + '.mp4'
+
+    return send_file(video, as_attachment=True)
 
 @app.route("/download")
 def downloadFile():
-    if 'themobe_id' in request.args:
-        id = request.args.get('themobe_id')
-        return manageDownload(id, APP_ROOT)
+
+    if 'download_req_id' in request.args:
+        id = request.args.get('download_req_id')
+        if (db.session.query(models.Tasks).filter_by(download_req_id=id).scalar()) is None:
+            response = {"error_id": "Unauthorized Request", "error_message": "'download_req_id' does not exist"}
+            return jsonify(response), status.HTTP_401_UNAUTHORIZED
+
+        else:
+            # task = models.Tasks.query().filter(models.Tasks.themobe_id == id).first()
+            task = db.session.query(models.Tasks)
+            task = task.filter(models.Tasks.download_req_id == id)
+            record = task.one()
+            task_status = record.task_status
+            download_count=record.download_count
+            persistent_status=record.persistent_status
+
+            download_allocation_time = record.download_allocation_time
+            expires_in = record.expires_in
+            current_time = int(round(time.time() * 1000))
+            # check for the authenticity of id
+            if (download_allocation_time + expires_in*1000 < current_time):
+                response = {"error_id": "access denied", "error_message": "'download_req_id' expired."}
+                record.task_status = "EXPIRED"
+                db.session.commit()
+                return jsonify(response), status.HTTP_400_BAD_REQUEST
+
+            if (task_status == "PROCESSING"):
+                response = {"error_id": "Bad Request", "error_message": "wrong endpoint. Task is still being processed."}
+                return jsonify(response), status.HTTP_400_BAD_REQUEST
+
+            if (task_status == "EXPIRED"):
+                response = {"error_id": "Bad Request", "error_message": "Task expired. Try again."}
+                return jsonify(response), status.HTTP_400_BAD_REQUEST
+
+            if (task_status == "DOWNLOADED"):
+                if(download_count>5):
+                    response = {"error_id": "Bad Request", "error_message": "maximum downloads reached."}
+                    return jsonify(response), status.HTTP_400_BAD_REQUEST
+                else:
+                    record.download_count = download_count + 1
+                    db.session.commit()
+                    if (persistent_status == 0):
+                        path = "/".join([APP_ROOT, "output"])
+                        annotated_video = path + '/' + id + '.mp4'
+
+                        original_path = "/".join([APP_ROOT, "toAnnotate"])
+                        original_video = original_path + '/' + id + '.mp4'
+
+                        if os.path.exists(original_video):
+                            os.remove(original_video)
+
+                        if os.path.exists(annotated_video):
+                            os.remove(annotated_video)
+
+                    return manageDownload(id, APP_ROOT)
+
+            if(task_status == "ANNOTATED"):
+                record.task_status = "DOWNLOADED"
+                record.download_count=download_count+1
+                db.session.commit()
+
+                if (persistent_status == False):
+                    path = "/".join([APP_ROOT, "output"])
+                    annotated_video = path + '/' + id + '.mp4'
+
+                    original_path = "/".join([APP_ROOT, "toAnnotate"])
+                    original_video = original_path + '/' + id + '.mp4'
+
+                    if os.path.exists(original_video):
+                        os.remove(original_video)
+
+                    if os.path.exists(annotated_video):
+                        os.remove(annotated_video)
+
+                return manageDownload(id, APP_ROOT)
+
+
+
+
+    else:
+        response = {"error_id": "Bad Request", "error_message": "'themobe_id' is missing"}
+        return jsonify(response), status.HTTP_400_BAD_REQUEST
 
 
 if __name__ == "__main__":
