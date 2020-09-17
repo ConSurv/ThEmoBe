@@ -103,23 +103,30 @@ def annotate():
     db.session.add(task)
     db.session.commit()
 
-    # Need to be async
-    annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id))
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    # asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
+    annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
+    # result=asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
+    # Need to be asyncr
 
     response = {"themobe_id": id, "video": filename, "video_status": "processing", "expires_in": requested_expiry,
                 "interval": DEFAULT_POLLING_INTERVAL}
     return jsonify(response)
 
-def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
-    if(True):
-        task = db.session.query(models.Tasks)
-        task = task.filter(models.Tasks.themobe_id == id)
-        record = task.one()
-        current_time = int(round(time.time() * 1000))
-        record.task_status = "ANNOTATED"
-        record.download_allocation_time = current_time
-        record.download_req_id = str(uuid.uuid4())
-        db.session.commit()
+async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
+    # await asyncio.sleep(20)
+    print("commited changes")
+    task = db.session.query(models.Tasks)
+    task = task.filter(models.Tasks.themobe_id == id)
+    record = task.one()
+    current_time = int(round(time.time() * 1000))
+    record.task_status = "ANNOTATED"
+    record.download_allocation_time = current_time
+    record.download_req_id = str(uuid.uuid4())
+    db.session.commit()
+    print("commited changes")
+    return "sucessfull"
 
 @app.route("/poll")
 def polling():
@@ -194,15 +201,15 @@ def manageDownload(id, APP_ROOT):
 def downloadFile():
 
     if 'download_req_id' in request.args:
-        id = request.args.get('download_req_id')
-        if (db.session.query(models.Tasks).filter_by(download_req_id=id).scalar()) is None:
+        download_req_id = request.args.get('download_req_id')
+        if (db.session.query(models.Tasks).filter_by(download_req_id=download_req_id).scalar()) is None:
             response = {"error_id": "Unauthorized Request", "error_message": "'download_req_id' does not exist"}
             return jsonify(response), status.HTTP_401_UNAUTHORIZED
 
         else:
             # task = models.Tasks.query().filter(models.Tasks.themobe_id == id).first()
             task = db.session.query(models.Tasks)
-            task = task.filter(models.Tasks.download_req_id == id)
+            task = task.filter(models.Tasks.download_req_id == download_req_id)
             record = task.one()
             task_status = record.task_status
             download_count=record.download_count
@@ -211,6 +218,8 @@ def downloadFile():
             download_allocation_time = record.download_allocation_time
             expires_in = record.expires_in
             current_time = int(round(time.time() * 1000))
+            themobe_id = record.themobe_id
+
             # check for the authenticity of id
             if (download_allocation_time + expires_in*1000 < current_time):
                 response = {"error_id": "access denied", "error_message": "'download_req_id' expired."}
@@ -235,10 +244,10 @@ def downloadFile():
                     db.session.commit()
                     if (persistent_status == 0):
                         path = "/".join([APP_ROOT, "output"])
-                        annotated_video = path + '/' + id + '.mp4'
+                        annotated_video = path + '/' + themobe_id + '.mp4'
 
                         original_path = "/".join([APP_ROOT, "toAnnotate"])
-                        original_video = original_path + '/' + id + '.mp4'
+                        original_video = original_path + '/' + themobe_id + '.mp4'
 
                         if os.path.exists(original_video):
                             os.remove(original_video)
@@ -246,7 +255,7 @@ def downloadFile():
                         if os.path.exists(annotated_video):
                             os.remove(annotated_video)
 
-                    return manageDownload(id, APP_ROOT)
+                    return manageDownload(themobe_id, APP_ROOT)
 
             if(task_status == "ANNOTATED"):
                 record.task_status = "DOWNLOADED"
@@ -255,10 +264,10 @@ def downloadFile():
 
                 if (persistent_status == False):
                     path = "/".join([APP_ROOT, "output"])
-                    annotated_video = path + '/' + id + '.mp4'
+                    annotated_video = path + '/' + themobe_id + '.mp4'
 
                     original_path = "/".join([APP_ROOT, "toAnnotate"])
-                    original_video = original_path + '/' + id + '.mp4'
+                    original_video = original_path + '/' + themobe_id + '.mp4'
 
                     if os.path.exists(original_video):
                         os.remove(original_video)
@@ -266,10 +275,7 @@ def downloadFile():
                     if os.path.exists(annotated_video):
                         os.remove(annotated_video)
 
-                return manageDownload(id, APP_ROOT)
-
-
-
+                return manageDownload(themobe_id, APP_ROOT)
 
     else:
         response = {"error_id": "Bad Request", "error_message": "'themobe_id' is missing"}
@@ -278,3 +284,4 @@ def downloadFile():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
