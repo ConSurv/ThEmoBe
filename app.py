@@ -13,7 +13,7 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import Table, create_engine
 from sqlalchemy import create_engine, MetaData, Table, Column
 
-# from annotation_pipeline import annotateVideo
+from annotation_pipeline import annotateVideo
 from config import Config
 import models
 from pollingManager import handlePolling
@@ -106,7 +106,8 @@ def annotate():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     # asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
-    annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
+    # annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
+    annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
     # result=asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
     # Need to be asyncr
 

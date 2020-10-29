@@ -4,3 +4,5 @@ Parallel_GSOM_for_HAAP/
 CVND_Exercises_2_2_YOLO/
 
 .idea/
+
+__pycache__/
