@@ -29,3 +29,6 @@ def create_behaviour_model_from_checkpoint():
     behaviour_model = behaviour_model.to(device)
 
     return behaviour_model
+
+if __name__ == '__main__':
+    create_behaviour_model_from_checkpoint()

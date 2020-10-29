@@ -1,8 +1,7 @@
-import time
-import torch
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
-
+import cv2
+import os
 
 def plot_boxes(i, img, x1, x2, y1, y2, prediction_labels, what_to_plot, plot_labels, color):
     # Get the width and height of the image
@@ -50,7 +49,7 @@ def plot_boxes(i, img, x1, x2, y1, y2, prediction_labels, what_to_plot, plot_lab
         # d.text(xy=(x1 + lxc, y1 - lyc), text=label_text, fill=rgb)
     # return img
     # plt.show()
-    fig.savefig("/content/output/img" + str(i) + ".png")
+    fig.savefig("/content/ThEmoBe/output/img" + str(i) + ".png")
 
 
 from PIL import Image, ImageDraw
@@ -114,7 +113,7 @@ def plot_and_save_bounding_boxes(APP_ROOT, predictions, frames_list, coordinates
 
     img_array = []
     for i in range(15):
-        img = cv2.imread("/content/output/img" + str(i) + ".png")
+        img = cv2.imread("/content/ThEmoBe/output/img" + str(i) + ".png")
         height, width, layers = img.shape
         size = (width, height)
         img_array.append(img)

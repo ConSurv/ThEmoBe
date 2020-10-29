@@ -35,3 +35,5 @@ sudo apt-get install libmysqlclient-dev
 pip3 install mysqlclient
 
 /etc/init.d/mysql restart
+
+mysql -u root -e "create database annotate";

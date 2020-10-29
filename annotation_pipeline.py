@@ -1,19 +1,17 @@
-from model.load_behaviour_model_from_checkpoint_2 import *
 from CVND_Exercises_2_2_YOLO.get_cropped_human_frames import *
 from model.get_behaviour_features_6 import *
-from model.loading_emotion_model_7 import *
 from model.face_detector_8 import *
 # from model.create_gsom_object_10 import *
 from Parallel_GSOM_for_HAAP.create_gsom_objects import *
 from model.bounding_box_11 import *
 
-behaviour_model = create_behaviour_model_from_checkpoint()
-
-emotion_model = create_emotion_model_from_checkpoint()
 
 
-def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat_annotation, video_id):
+
+def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat_annotation, video_id, behaviour_model, emotion_model):
     # TODO  - save download_req_id,task_status and download_allocation_time(current time when updating status)
+
+    print("emo_annotation, behav_annotation, threat_annotation ", emo_annotation, behav_annotation, threat_annotation)
 
     target = "/".join([APP_ROOT, "temp"])
 
@@ -25,22 +23,29 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
         frames_list)
 
     behaviour_features = get_behaviour_features(behaviour_model, cropped_image_sequence_for_behaviour)
+    print("behaviour_features shape ",behaviour_features.shape)
 
     detected_face = detect_face(cropped_image_sequence_for_emotion)
+    print("detected_face shape ",detected_face.shape)
 
     emotion_features = get_emotion_features(emotion_model, detected_face)
+    print("emotion_features shape ",emotion_features.shape)
 
     behaviour_predicted, behaviour_winner_weights = BehaviourGSOM.predict_x(behaviour_features[[0], :])
+    print("behaviour_predicted, behaviour_winner_weights ", behaviour_predicted, behaviour_winner_weights)
 
     emotion_predicted, emotion_winner_weights = EmotionGSOM.predict_x(emotion_features[[0], :])
+    print("emotion_predicted, emotion_winner_weights ",emotion_predicted, emotion_winner_weights)
 
     ALPHA1, ALPHA2 = 1, 1
 
     threat_feature = np.hstack((ALPHA1 * emotion_winner_weights[0][0], ALPHA2 * behaviour_winner_weights[0][0]))
 
     threat_feature = threat_feature.reshape(1, 9216)
+    print("threat_feature shape ",threat_feature.shape)
 
     threat_predicted, threat_winner_weights = ThreatGSOM.predict_x(threat_feature)
+    print("threat_predicted,threat_winner_weights ",threat_predicted,threat_winner_weights)
 
     predictions = [str(int(emotion_predicted[0])), str(int(behaviour_predicted[0])), str(int(threat_predicted[0]))]
 
@@ -53,3 +58,5 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
     return "Video annotated successfully!"
 
 
+if __name__ == '__main__':
+    annotateVideo()

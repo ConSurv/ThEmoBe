@@ -5,5 +5,7 @@ def create_emotion_model_from_checkpoint():
     emotion_model = keras.Model(inputs = model.inputs, outputs=model.layers[-3].output)
     emotion_model.summary()
 
-    return model
+    return emotion_model
 
+if __name__ == '__main__':
+    create_emotion_model_from_checkpoint()
