@@ -2,6 +2,8 @@ import asyncio
 import os
 import time
 import uuid
+import ast
+
 import threading
 
 from flask import Flask, send_file
@@ -78,21 +80,23 @@ def annotate():
         print("dest:" + target)
         file.save(video_file)
 
+        print("request form ", request.form)
+
         # Annotate video for emotions
         if 'emo' in request.form:
-            emo_annotation = request.form['emo']
+            emo_annotation = ast.literal_eval(request.form['emo'])
         else:
             response = {"error_id": "Bad Request", "error_message": "parameters missing : 'emo' "}
             return jsonify(response), status.HTTP_400_BAD_REQUEST
 
         if 'behav' in request.form:
-            behav_annotation = request.form['behav']
+            behav_annotation = ast.literal_eval(request.form['behav'])
         else:
             response = {"error_id": "Bad Request", "error_message": "parameters missing : 'behav' "}
             return jsonify(response), status.HTTP_400_BAD_REQUEST
 
         if 'threat' in request.form:
-            threat_annotation = request.form['threat']
+            threat_annotation = ast.literal_eval(request.form['threat'])
         else:
             response = {"error_id": "Bad Request", "error_message": "parameters missing : 'emo' "}
             return jsonify(response), status.HTTP_400_BAD_REQUEST

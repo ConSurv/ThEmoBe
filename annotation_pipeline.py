@@ -49,9 +49,10 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
 
     predictions = [str(int(emotion_predicted[0])), str(int(behaviour_predicted[0])), str(int(threat_predicted[0]))]
 
-    print(predictions)
+    print("model predicitons ", predictions)
 
     what_to_plot = [emo_annotation, behav_annotation, threat_annotation]
+    print("what_to_plot", what_to_plot)
 
     plot_and_save_bounding_boxes(APP_ROOT, predictions, frames_list, coordinates_array, video_id, what_to_plot)
 

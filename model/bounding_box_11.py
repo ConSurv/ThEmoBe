@@ -35,7 +35,13 @@ def plot_boxes(i, img, x1, x2, y1, y2, prediction_labels, what_to_plot, plot_lab
     if plot_labels:
         # Create a string with the object class name and the corresponding object class probability
         # conf_tx = class_names[cls_id] + ': {:.1f}'.format(cls_conf)
-        label_text = prediction_labels[0] + '\n' if what_to_plot[0] else '' + prediction_labels[1] + '\n' if what_to_plot[1] else '' + prediction_labels[2] if what_to_plot[2] else ''
+
+        emotion_text = prediction_labels[0] + '\n' if what_to_plot[0] else ''
+        behaviour_text = prediction_labels[1] + '\n' if what_to_plot[1] else ''
+        threat_text = prediction_labels[2] if what_to_plot[2] else ''
+        print("emotion_text + behaviour_text + threat_text", emotion_text, behaviour_text, threat_text)
+        label_text =  emotion_text + behaviour_text + threat_text
+        print("label_text ", label_text)
 
         # Define x and y offsets for the labels
         lxc = (img.shape[1] * 0.266) / 100
@@ -76,7 +82,7 @@ behaviour_label_dictionary = {
 }
 
 threat_label_dictionary = {
-     "1" : "No Theat (1)",
+     "1" : "No Threat (1)",
      "2" : "Low Threat (2)",
      "3" : "Moderate Threat (3)",
      "4" : "Substantial Threat (4)",
@@ -98,7 +104,7 @@ def plot_and_save_bounding_boxes(APP_ROOT, predictions, frames_list, coordinates
                          threat_label_dictionary[predictions[2]]
                          ]
 
-    print(prediction_labels)
+    print("prediction_labels ", prediction_labels)
 
     for i in range(15):
         selected_frame = cv2.imread(frames_list[i+5])

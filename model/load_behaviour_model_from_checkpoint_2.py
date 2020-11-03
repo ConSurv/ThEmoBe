@@ -25,7 +25,7 @@ def create_behaviour_model_from_checkpoint():
 
     final = nn.Sequential(*list(behaviour_model.lstm.final.children())[:3])
     behaviour_model.lstm.final = final
-    print(behaviour_model)
+    # print(behaviour_model)
     behaviour_model = behaviour_model.to(device)
 
     return behaviour_model
