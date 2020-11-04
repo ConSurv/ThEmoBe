@@ -18,6 +18,7 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
     temp_save_path = target + '/' + video_id + '/'
 
     frames_list = convert_to_frames(video_path,temp_save_path)
+    print("len frames_list ", len(frames_list))
 
     cropped_image_sequence_for_behaviour, coordinates_array, cropped_image_sequence_for_emotion = get_cropped_frames(
         frames_list)
