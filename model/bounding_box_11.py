@@ -48,14 +48,14 @@ def plot_boxes(i, img, x1, x2, y1, y2, prediction_labels, what_to_plot, plot_lab
         lyc = (img.shape[0] * 1.180) / 100
 
         # Draw the labels on top of the image
-        axis.text(x1 + lxc, y1 - lyc, label_text, fontsize=12, color='k',
+        axis.text(x1 + lxc, y1 - lyc, label_text, fontsize=18, color='k',
                   bbox=dict(facecolor=rgb1, edgecolor=rgb1, alpha=0.8))
 
         # d = ImageDraw.Draw(Image.fromarray(img))
         # d.text(xy=(x1 + lxc, y1 - lyc), text=label_text, fill=rgb)
     # return img
     # plt.show()
-    fig.savefig("/content/ThEmoBe/output/img" + str(i) + ".png")
+    fig.savefig("/content/ThEmoBe/output/img" + str(i) + ".png", bbox_inches='tight', pad_inches=0)
 
 
 from PIL import Image, ImageDraw
