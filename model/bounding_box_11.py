@@ -39,9 +39,8 @@ def plot_boxes(i, img, x1, x2, y1, y2, prediction_labels, what_to_plot, plot_lab
         emotion_text = prediction_labels[0] + '\n' if what_to_plot[0] else ''
         behaviour_text = prediction_labels[1] + '\n' if what_to_plot[1] else ''
         threat_text = prediction_labels[2] if what_to_plot[2] else ''
-        print("emotion_text + behaviour_text + threat_text", emotion_text, behaviour_text, threat_text)
+
         label_text =  emotion_text + behaviour_text + threat_text
-        print("label_text ", label_text)
 
         # Define x and y offsets for the labels
         lxc = (img.shape[1] * 0.266) / 100
@@ -58,8 +57,6 @@ def plot_boxes(i, img, x1, x2, y1, y2, prediction_labels, what_to_plot, plot_lab
     fig.savefig("/content/ThEmoBe/output/img" + str(i) + ".png", bbox_inches='tight', transparent=True, pad_inches=0)
 
 
-from PIL import Image, ImageDraw
-import skvideo.io
 
 emotion_label_dictionary = {
     "0" : "Anger",
