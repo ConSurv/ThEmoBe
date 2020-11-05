@@ -31,7 +31,7 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
 
     for j in range(chunks):
 
-        print("===============Doing chunk ",j," =====================")
+        print("===============  Doing chunk ",j," =====================")
         behaviour_features = get_behaviour_features(behaviour_model, cropped_image_sequence_for_behaviour[j:j+15])
         print("behaviour_features shape ",behaviour_features.shape)
 
@@ -64,6 +64,7 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
         what_to_plot = [emo_annotation, behav_annotation, threat_annotation]
         print("what_to_plot", what_to_plot)
 
+        print("j:j+15 ", j,":",j+15," len(frames_list)", len(frames_list), " len(coordinates_array)", len(coordinates_array))
         plot_bounding_boxes(predictions, frames_list[j:j+15], coordinates_array[j:j+15], what_to_plot, j)
 
 
