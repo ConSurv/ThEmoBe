@@ -39,27 +39,24 @@ def plot_boxes(i, img, x1, x2, y1, y2, prediction_labels, what_to_plot, plot_lab
         emotion_text = prediction_labels[0] + '\n' if what_to_plot[0] else ''
         behaviour_text = prediction_labels[1] + '\n' if what_to_plot[1] else ''
         threat_text = prediction_labels[2] if what_to_plot[2] else ''
-        print("emotion_text + behaviour_text + threat_text", emotion_text, behaviour_text, threat_text)
+
         label_text =  emotion_text + behaviour_text + threat_text
-        print("label_text ", label_text)
 
         # Define x and y offsets for the labels
         lxc = (img.shape[1] * 0.266) / 100
         lyc = (img.shape[0] * 1.180) / 100
 
         # Draw the labels on top of the image
-        axis.text(x1 + lxc, y1 - lyc, label_text, fontsize=12, color='k',
+        axis.text(x1 + lxc, y1 - lyc, label_text, fontsize=18, color='k',
                   bbox=dict(facecolor=rgb1, edgecolor=rgb1, alpha=0.8))
 
         # d = ImageDraw.Draw(Image.fromarray(img))
         # d.text(xy=(x1 + lxc, y1 - lyc), text=label_text, fill=rgb)
     # return img
     # plt.show()
-    fig.savefig("/content/ThEmoBe/output/img" + str(i) + ".png")
+    fig.savefig("/content/ThEmoBe/output/img" + str(i) + ".png", bbox_inches='tight', transparent=True, pad_inches=0)
 
 
-from PIL import Image, ImageDraw
-import skvideo.io
 
 emotion_label_dictionary = {
     "0" : "Anger",
@@ -98,7 +95,7 @@ threat_color_dictionary = {
      "1" : (0, 204, 0) #green
 }
 
-def plot_and_save_bounding_boxes(APP_ROOT, predictions, frames_list, coordinates_array, output_video_id, what_to_plot):
+def plot_bounding_boxes(predictions, frames_list, coordinates_array, what_to_plot, j):
     prediction_labels = [emotion_label_dictionary[predictions[0]],
                          behaviour_label_dictionary[predictions[1]],
                          threat_label_dictionary[predictions[2]]
@@ -106,26 +103,30 @@ def plot_and_save_bounding_boxes(APP_ROOT, predictions, frames_list, coordinates
 
     print("prediction_labels ", prediction_labels)
 
-    for i in range(15):
-        selected_frame = cv2.imread(frames_list[i+5])
+    chunk_offset = j*15
+
+    for i in range(len(frames_list)):
+        selected_frame = cv2.imread(frames_list[i])
         coord = coordinates_array[i]
         x1, x2, y1, y2 = coord[0], coord[1], coord[2], coord[3]
-        plot_boxes(i, selected_frame, x1, x2, y1, y2, prediction_labels,what_to_plot, plot_labels=True, color = threat_color_dictionary[predictions[2]])
+        plot_boxes(i + chunk_offset, selected_frame, x1, x2, y1, y2, prediction_labels,what_to_plot, plot_labels=True, color = threat_color_dictionary[predictions[2]])
 
+
+
+def make_video(APP_ROOT, output_video_id, len_frames_list):
     target = "/".join([APP_ROOT, "annotated_output"])
 
     if not os.path.isdir(target):
         os.mkdir(target)
 
     img_array = []
-    for i in range(15):
+    for i in range(len_frames_list):
         img = cv2.imread("/content/ThEmoBe/output/img" + str(i) + ".png")
         height, width, layers = img.shape
         size = (width, height)
         img_array.append(img)
 
-    out = cv2.VideoWriter(target + output_video_id + ".avi", cv2.VideoWriter_fourcc(*'DIVX'), 15,
-                          size)
+    out = cv2.VideoWriter(target + output_video_id + ".avi", cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
 
     for i in range(len(img_array)):
         out.write(img_array[i])

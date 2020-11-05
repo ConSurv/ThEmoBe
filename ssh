@@ -1,1 +1,5 @@
-ssh -L 5000:localhost:5000 root@4.tcp.ngrok.io -p 17969
+
+# ssh -L 5000:localhost:5000 -t <username>@<server ip> -p <port> "cd /content/ThEmoBe/ ; bash"
+# Example shown below
+
+ssh -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 17969 "cd /content/ThEmoBe/ ; bash"
