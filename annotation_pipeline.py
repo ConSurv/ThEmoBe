@@ -21,8 +21,8 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
     print("len frames_list ", len(frames_list))
 
     print("Detecting humans...")
-    cropped_image_sequence_for_behaviour, coordinates_array, cropped_image_sequence_for_emotion = get_cropped_frames(
-        frames_list)
+    cropped_image_sequence_for_behaviour, coordinates_array, cropped_image_sequence_for_emotion = get_cropped_frames(frames_list)
+    print("len(coordinates_array) ", len(coordinates_array))
     print("Humans detected!")
 
     chunks = int(len(frames_list)/15)
@@ -30,12 +30,13 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
     mini_chunk_present = 1 if (len(frames_list) % 15 !=0)  else 0
 
     for j in range(chunks):
+        chunk_offset = j * 15
 
         print("===============  Doing chunk ",j," =====================")
-        behaviour_features = get_behaviour_features(behaviour_model, cropped_image_sequence_for_behaviour[j:j+15])
+        behaviour_features = get_behaviour_features(behaviour_model, cropped_image_sequence_for_behaviour[chunk_offset:chunk_offset+15])
         print("behaviour_features shape ",behaviour_features.shape)
 
-        detected_face = detect_face(cropped_image_sequence_for_emotion[j:j+15])
+        detected_face = detect_face(cropped_image_sequence_for_emotion[chunk_offset:chunk_offset+15])
         print("detected_face shape ",detected_face.shape)
 
         emotion_features = get_emotion_features(emotion_model, detected_face)
@@ -64,8 +65,8 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
         what_to_plot = [emo_annotation, behav_annotation, threat_annotation]
         print("what_to_plot", what_to_plot)
 
-        print("j:j+15 ", j,":",j+15," len(frames_list)", len(frames_list), " len(coordinates_array)", len(coordinates_array))
-        plot_bounding_boxes(predictions, frames_list[j:j+15], coordinates_array[j:j+15], what_to_plot, j)
+        print("chunk_offset:chunk_offset+15 ", chunk_offset,":",chunk_offset+15," len(frames_list)", len(frames_list), " len(coordinates_array)", len(coordinates_array))
+        plot_bounding_boxes(predictions, frames_list[chunk_offset:chunk_offset+15], coordinates_array[chunk_offset:chunk_offset+15], what_to_plot, j)
 
 
     if mini_chunk_present:
