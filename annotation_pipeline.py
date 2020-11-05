@@ -22,7 +22,8 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
 
     print("Detecting humans...")
     cropped_image_sequence_for_behaviour, coordinates_array, cropped_image_sequence_for_emotion = get_cropped_frames(frames_list)
-    print("len(coordinates_array) ", len(coordinates_array))
+    print("len(cropped_image_sequence_for_behaviour), len(coordinates_array), len(cropped_image_sequence_for_emotion) ",
+          len(cropped_image_sequence_for_behaviour)," ",len(coordinates_array)," ", len(cropped_image_sequence_for_emotion))
     print("Humans detected!")
 
     chunks = int(len(frames_list)/15)
