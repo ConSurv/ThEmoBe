@@ -24,13 +24,14 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
     cropped_image_sequence_for_behaviour, coordinates_array, cropped_image_sequence_for_emotion = get_cropped_frames(
         frames_list)
     print("Humans detected!")
-    
+
     chunks = int(len(frames_list)/15)
     mini_chunk_size = len(frames_list) % 15
     mini_chunk_present = 1 if (len(frames_list) % 15 !=0)  else 0
 
     for j in range(chunks):
 
+        print("===============Doing chunk ",j," =====================")
         behaviour_features = get_behaviour_features(behaviour_model, cropped_image_sequence_for_behaviour[j:j+15])
         print("behaviour_features shape ",behaviour_features.shape)
 
@@ -67,8 +68,8 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
 
 
     if mini_chunk_present:
-        is_mini_chunk = True
 
+        print("++++++++++++++++++ Doing mini chunk +++++++++++++++++++++++")
         behaviour_features = get_behaviour_features(behaviour_model, cropped_image_sequence_for_behaviour[-1 * mini_chunk_size:])
         print("behaviour_features shape ", behaviour_features.shape)
 
