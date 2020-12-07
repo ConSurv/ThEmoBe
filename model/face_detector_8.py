@@ -1,6 +1,10 @@
+import cv2
+import numpy as np
+
+
 def cropFaceDNN(cropped_behaviour_img):
-    prototxt = "/content/deep-learning-face-detection/deploy.prototxt.txt"
-    model = "/content/deep-learning-face-detection/res10_300x300_ssd_iter_140000.caffemodel"
+    prototxt = "/content/ThEmoBe/deep-learning-face-detection/deploy.prototxt.txt"
+    model = "/content/ThEmoBe/deep-learning-face-detection/res10_300x300_ssd_iter_140000.caffemodel"
     CONFIDENCE = 0.5
 
     # load our serialized model from disk
@@ -51,11 +55,11 @@ def cropFaceDNN(cropped_behaviour_img):
     return face_detected, face
 
 
-import os
 
 def detect_face(cropped_image_sequence_for_emotion):
     black = np.zeros((128, 128, 3))
     difficult_sequences = []
+    detected_face = np.zeros((128, 128, 3))
 
     face_detected = False
     for cropped_image in cropped_image_sequence_for_emotion:
@@ -66,6 +70,7 @@ def detect_face(cropped_image_sequence_for_emotion):
                 imageresize = cv2.resize(face, (128, 128), interpolation=cv2.INTER_AREA)
                 detected_face = cv2.cvtColor(imageresize, cv2.COLOR_BGR2GRAY)
                 detected_face = np.repeat(detected_face[..., np.newaxis], 3, -1)
+                print("Face detected!!!")
                 break
             except:
                 print("No img ")
@@ -76,6 +81,6 @@ def detect_face(cropped_image_sequence_for_emotion):
     return detected_face
 
 def get_emotion_features(emotion_model,detected_face):
-    print(detected_face.shape)
     emotion_features = emotion_model.predict(detected_face.reshape(1,128,128,3))
-    print(emotion_features.shape)
+
+    return emotion_features

@@ -49,8 +49,8 @@
 		
 		  formData.append('video', video)
 		  if(emo.checked==true) { formData.append("emo","True") } else {formData.append("emo","False")}
-		  if(emo.checked==true) { formData.append("behav","True") } else {formData.append("behav","False")}
-		  if(emo.checked==true) { formData.append("threat","True") } else {formData.append("threat","False")}
+		  if(behav.checked==true) { formData.append("behav","True") } else {formData.append("behav","False")}
+		  if(threat.checked==true) { formData.append("threat","True") } else {formData.append("threat","False")}
 		  xhr.send(formData)
 		}
 		

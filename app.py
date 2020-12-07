@@ -2,6 +2,8 @@ import asyncio
 import os
 import time
 import uuid
+import ast
+
 import threading
 
 from flask import Flask, send_file
@@ -13,10 +15,14 @@ from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import Table, create_engine
 from sqlalchemy import create_engine, MetaData, Table, Column
 
-# from annotation_pipeline import annotateVideo
+from annotation_pipeline import annotateVideo
 from config import Config
 import models
 from pollingManager import handlePolling
+from model.load_behaviour_model_from_checkpoint_2 import *
+from model.loading_emotion_model_7 import *
+
+
 
 app = Flask(__name__)
 
@@ -34,6 +40,21 @@ DEFAULT_EXPIRES_IN = 900  # In sec
 DEFAULT_POLLING_INTERVAL = 2  # In sec
 DEFAULT_PERSISTENT_STATUS = True
 
+behaviour_model, emotion_model = None, None
+print("dgssdhfffdjdjjdjjjdfjdsj")
+
+@app.before_first_request
+def do_something_only_once():
+    global behaviour_model, emotion_model
+
+    print("111111111111111111111111111111111111111111111111111111111111")
+    behaviour_model = create_behaviour_model_from_checkpoint()
+
+    emotion_model = create_emotion_model_from_checkpoint()
+
+    print("222222222222222222222222222222222222222222222222222222222222")
+
+    print("3333333333333333333 Initialized models 3333333333333333333333333333333333333333333")
 
 @app.route("/annotate", methods=["POST"])
 def annotate():
@@ -59,21 +80,23 @@ def annotate():
         print("dest:" + target)
         file.save(video_file)
 
+        print("request form ", request.form)
+
         # Annotate video for emotions
         if 'emo' in request.form:
-            emo_annotation = request.form['emo']
+            emo_annotation = ast.literal_eval(request.form['emo'])
         else:
             response = {"error_id": "Bad Request", "error_message": "parameters missing : 'emo' "}
             return jsonify(response), status.HTTP_400_BAD_REQUEST
 
         if 'behav' in request.form:
-            behav_annotation = request.form['behav']
+            behav_annotation = ast.literal_eval(request.form['behav'])
         else:
             response = {"error_id": "Bad Request", "error_message": "parameters missing : 'behav' "}
             return jsonify(response), status.HTTP_400_BAD_REQUEST
 
         if 'threat' in request.form:
-            threat_annotation = request.form['threat']
+            threat_annotation = ast.literal_eval(request.form['threat'])
         else:
             response = {"error_id": "Bad Request", "error_message": "parameters missing : 'emo' "}
             return jsonify(response), status.HTTP_400_BAD_REQUEST
@@ -106,7 +129,8 @@ def annotate():
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     # asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
-    annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
+    # annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
+    annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id), behaviour_model, emotion_model)
     # result=asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
     # Need to be asyncr
 

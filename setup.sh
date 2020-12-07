@@ -21,9 +21,19 @@ cd ~/ThEmoBe_basic
 
 git clone https://github.com/AathmanT/CVND_Exercises_2_2_YOLO.git
 
-wget -O yolov3.weights https://pjreddie.com/media/files/yolov3.weights
-
+#wget -O yolov3.weights https://pjreddie.com/media/files/yolov3.weights
+cp "/content/drive/My Drive/yolov3.weights" "/content/ThEmoBe/"
 
 
 
 pip3 install -r requirements.txt
+
+sudo apt-get update --fix-missing
+sudo apt-get install mysql-server
+sudo apt-get install libmysqlclient-dev
+
+pip3 install mysqlclient
+
+/etc/init.d/mysql restart
+
+mysql -u root -e "create database annotate";
