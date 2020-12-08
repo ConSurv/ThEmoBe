@@ -5,7 +5,7 @@ cd ~/ThEmoBe_basic
 
 wget https://s3-us-west-2.amazonaws.com/static.pyimagesearch.com/face-detection-opencv-deep-learning/deep-learning-face-detection.zip
 
-unzip deep-learning-face-detection.zip
+unzip -f deep-learning-face-detection.zip
 
 
 
@@ -37,3 +37,12 @@ pip3 install mysqlclient
 /etc/init.d/mysql restart
 
 mysql -u root -e "create database annotate";
+
+sudo apt-get install redis-server
+
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
+redis-server &
+
+

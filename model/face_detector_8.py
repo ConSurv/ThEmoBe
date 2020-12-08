@@ -84,6 +84,7 @@ def detect_face(cropped_image_sequence_for_emotion):
     return detected_face
 
 def get_emotion_features(detected_face):
+    print("inside get emotion feature")
     emotion_features = emotion_model.predict(detected_face.reshape(1,128,128,3))
-
+    print("done predicting emotion feature")
     return emotion_features

@@ -11,3 +11,17 @@ ssh root@4.tcp.ngrok.io -p 17969
 ssh -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 17969 "cd /content/ThEmoBe/ ; bash"
 
 ssh -o "StrictHostKeyChecking no" -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
+
+
+
+
+
+########################################
+run these in two separate terminals
+########################################
+
+python3 app.py
+celery -A app.celery worker --loglevel=debug
+
+
+########################################
