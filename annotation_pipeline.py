@@ -8,7 +8,7 @@ from model.bounding_box_11 import *
 
 
 
-def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat_annotation, video_id, behaviour_model, emotion_model):
+def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat_annotation, video_id):
     # TODO  - save download_req_id,task_status and download_allocation_time(current time when updating status)
 
     print("emo_annotation, behav_annotation, threat_annotation ", emo_annotation, behav_annotation, threat_annotation)
@@ -34,13 +34,13 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
         chunk_offset = j * 15
 
         print("===============  Doing chunk ",j," =====================")
-        behaviour_features = get_behaviour_features(behaviour_model, cropped_image_sequence_for_behaviour[chunk_offset:chunk_offset+15])
+        behaviour_features = get_behaviour_features(cropped_image_sequence_for_behaviour[chunk_offset:chunk_offset+15])
         print("behaviour_features shape ",behaviour_features.shape)
 
         detected_face = detect_face(cropped_image_sequence_for_emotion[chunk_offset:chunk_offset+15])
         print("detected_face shape ",detected_face.shape)
 
-        emotion_features = get_emotion_features(emotion_model, detected_face)
+        emotion_features = get_emotion_features(detected_face)
         print("emotion_features shape ",emotion_features.shape)
 
         behaviour_predicted, behaviour_winner_weights = BehaviourGSOM.predict_x(behaviour_features[[0], :])
@@ -73,13 +73,13 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
     if mini_chunk_present:
 
         print("++++++++++++++++++ Doing mini chunk +++++++++++++++++++++++")
-        behaviour_features = get_behaviour_features(behaviour_model, cropped_image_sequence_for_behaviour[-1 * mini_chunk_size:])
+        behaviour_features = get_behaviour_features(cropped_image_sequence_for_behaviour[-1 * mini_chunk_size:])
         print("behaviour_features shape ", behaviour_features.shape)
 
         detected_face = detect_face(cropped_image_sequence_for_emotion[-1 * mini_chunk_size:])
         print("detected_face shape ", detected_face.shape)
 
-        emotion_features = get_emotion_features(emotion_model, detected_face)
+        emotion_features = get_emotion_features(detected_face)
         print("emotion_features shape ", emotion_features.shape)
 
         behaviour_predicted, behaviour_winner_weights = BehaviourGSOM.predict_x(behaviour_features[[0], :])

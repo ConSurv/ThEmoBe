@@ -137,7 +137,7 @@ def annotate():
     # annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
     # result=asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
     # Need to be asyncr
-    celery_annotate.delay(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id, behaviour_model, emotion_model)
+    celery_annotate.delay(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id)
 
     response = {"themobe_id": id, "video": filename, "video_status": "processing", "expires_in": requested_expiry,
                 "interval": DEFAULT_POLLING_INTERVAL}
@@ -145,8 +145,8 @@ def annotate():
 
 
 @celery.task(name='app.celery_annotate')
-def celery_annotate(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id, behaviour_model, emotion_model):
-    annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id, behaviour_model, emotion_model)
+def celery_annotate(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id):
+    annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id)
     print("++++++++++++++++ celery got the work ++++++++++++++++")
 
 async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
