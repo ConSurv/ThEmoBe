@@ -11,6 +11,8 @@ from flask import request, jsonify
 from flask_api import status
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_celery import make_celery
+
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import Table, create_engine
 from sqlalchemy import create_engine, MetaData, Table, Column
@@ -34,6 +36,9 @@ migrate = Migrate(app, db)
 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+celery = make_celery(app)
+# celery.backend = RedisBackend(app=celery)
+
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 DEFAULT_EXPIRES_IN = 900  # In sec
@@ -130,13 +135,19 @@ def annotate():
     asyncio.set_event_loop(loop)
     # asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
     # annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
-    annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id), behaviour_model, emotion_model)
     # result=asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
     # Need to be asyncr
+    celery_annotate.delay(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id, behaviour_model, emotion_model)
 
     response = {"themobe_id": id, "video": filename, "video_status": "processing", "expires_in": requested_expiry,
                 "interval": DEFAULT_POLLING_INTERVAL}
     return jsonify(response)
+
+
+@celery.task(name='app.celery_annotate')
+def celery_annotate(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id, behaviour_model, emotion_model):
+    annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id, behaviour_model, emotion_model)
+    print("++++++++++++++++ celery got the work ++++++++++++++++")
 
 async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
     # await asyncio.sleep(20)
@@ -151,6 +162,7 @@ async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, 
     db.session.commit()
     print("commited changes")
     return "sucessfull"
+
 
 @app.route("/poll")
 def polling():
