@@ -37,3 +37,17 @@ tail -f nohup.out
 ssh -o "StrictHostKeyChecking no" -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
 
 ########################################
+
+
+###########################################
+Run using docker
+###########################################
+
+docker pull waleedka/modern-deep-learning
+docker images
+docker ps
+docker run -it -p 8888:8888 -p 6006:6006 -v ~/:/host waleedka/modern-deep-learning
+git clone https://github.com/AathmanT/ThEmoBe.git
+cd ThEmoBe/
+chmod +x setup.sh
+./setup.sh

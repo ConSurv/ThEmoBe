@@ -19,7 +19,7 @@ def create_behaviour_model_from_checkpoint():
     )
 
 
-    CHECK_POINT = "/content/drive/My Drive/Model/ConvLSTM_240.pth"
+    CHECK_POINT = "/root/FYP_Model_weights/ConvLSTM_240.pth"
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 

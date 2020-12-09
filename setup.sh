@@ -28,21 +28,21 @@ cp "/content/drive/My Drive/yolov3.weights" "/content/ThEmoBe/"
 
 pip3 install -r requirements.txt
 
-sudo rm -rf /var/lib/mysql
+rm -rf /var/lib/mysql
 
 export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get update --fix-missing
-sudo apt-get install mysql-server
-sudo apt-get install libmysqlclient-dev
+apt-get update --fix-missing
+apt-get install mysql-server
+apt-get install libmysqlclient-dev
 
 pip3 install mysqlclient
 
 /etc/init.d/mysql restart
 
-mysql -u root -e "create database annotate";
+mysql -u root -proot -e "create database annotate";
 
-sudo apt-get install redis-server
+apt-get install redis-server
 
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8

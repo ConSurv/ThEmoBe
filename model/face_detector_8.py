@@ -6,8 +6,8 @@ from model.loading_emotion_model_7 import *
 emotion_model = create_emotion_model_from_checkpoint()
 
 def cropFaceDNN(cropped_behaviour_img):
-    prototxt = "/content/ThEmoBe/deep-learning-face-detection/deploy.prototxt.txt"
-    model = "/content/ThEmoBe/deep-learning-face-detection/res10_300x300_ssd_iter_140000.caffemodel"
+    prototxt = "/root/ThEmoBe/deep-learning-face-detection/deploy.prototxt.txt"
+    model = "/root/ThEmoBe/deep-learning-face-detection/res10_300x300_ssd_iter_140000.caffemodel"
     CONFIDENCE = 0.5
 
     # load our serialized model from disk
