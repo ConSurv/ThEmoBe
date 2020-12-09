@@ -26,7 +26,9 @@ python3 app.py
 ssh -o "StrictHostKeyChecking no" -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
-nohup celery -A app.celery worker --loglevel=debug &
+# nohup celery -A app.celery worker --loglevel=debug &
+nohup celery -A app.celery worker &
+
 tail -f nohup.out
 
 

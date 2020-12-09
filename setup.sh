@@ -28,6 +28,10 @@ cp "/content/drive/My Drive/yolov3.weights" "/content/ThEmoBe/"
 
 pip3 install -r requirements.txt
 
+sudo rm -rf /var/lib/mysql
+
+export DEBIAN_FRONTEND=noninteractive
+
 sudo apt-get update --fix-missing
 sudo apt-get install mysql-server
 sudo apt-get install libmysqlclient-dev
@@ -43,6 +47,6 @@ sudo apt-get install redis-server
 export LC_ALL=C.UTF-8
 export LANG=C.UTF-8
 
-redis-server &
+echo | redis-server &
 
 
