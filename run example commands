@@ -1,8 +1,3 @@
-# Run two ssh commands in 2 terminals
-# first one     ssh root@4.tcp.ngrok.io -p 17969
-# second one to do ssh tunneling       ssh -L 5000:localhost:5000 root@4.tcp.ngrok.io -p 17969
-
-
 # ssh -L 5000:localhost:5000 -t <username>@<server ip> -p <port> "cd /content/ThEmoBe/ ; bash"
 # Example shown below
 
@@ -17,11 +12,26 @@ ssh -o "StrictHostKeyChecking no" -L 5000:localhost:5000 -t root@4.tcp.ngrok.io 
 
 
 ########################################
-run these in two separate terminals
+run these in 3 separate terminals
 ########################################
 
+1st terminal - start flask backend
+----------------------------------
+ssh -o "StrictHostKeyChecking no" -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
 python3 app.py
-celery -A app.celery worker --loglevel=debug
 
+
+2nd terminal - run celery worker
+--------------------------------
+ssh -o "StrictHostKeyChecking no" -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+nohup celery -A app.celery worker --loglevel=debug &
+tail -f nohup.out
+
+
+3rd terminal - do ssh tunneling
+-------------------------------
+ssh -o "StrictHostKeyChecking no" -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
 
 ########################################
