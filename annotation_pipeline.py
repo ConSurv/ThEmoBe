@@ -10,7 +10,7 @@ from model.bounding_box_11 import *
 
 def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat_annotation, video_id):
     # TODO  - save download_req_id,task_status and download_allocation_time(current time when updating status)
-
+    print("APP_ROOT, video_path",APP_ROOT," ", video_path)
     print("emo_annotation, behav_annotation, threat_annotation ", emo_annotation, behav_annotation, threat_annotation)
 
     target = "/".join([APP_ROOT, "temp"])

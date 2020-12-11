@@ -1,0 +1,126 @@
+# ssh -L 5000:localhost:5000 -t <username>@<server ip> -p <port> "cd /content/ThEmoBe/ ; bash"
+# Example shown below
+
+ssh root@4.tcp.ngrok.io -p 17969
+
+ssh -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 17969 "cd /content/ThEmoBe/ ; bash"
+
+ssh -o "StrictHostKeyChecking no" -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
+
+
+
+
+
+########################################
+run these in 3 separate terminals
+########################################
+
+1st terminal - start flask backend
+----------------------------------
+ssh -o "StrictHostKeyChecking no" -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
+python3 app.py
+
+
+2nd terminal - run celery worker
+--------------------------------
+ssh -o "StrictHostKeyChecking no" -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+# nohup celery -A app.celery worker --loglevel=debug &
+nohup celery -A app.celery worker &
+
+tail -f nohup.out
+
+
+3rd terminal - do ssh tunneling
+-------------------------------
+ssh -o "StrictHostKeyChecking no" -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
+
+########################################
+
+
+###########################################
+Run using docker for the first time
+###########################################
+
+#docker pull waleedka/modern-deep-learning
+docker pull ufoym/deepo:cpu
+docker images
+docker images -a
+
+
+docker run -d -it <image_id>
+docker ps
+docker ps -a
+
+-----------------------------------------
+## now you can open as many terminals and run the following
+-----------------------------------------
+
+docker exec -it <container_id> bash
+
+
+
+
+###########################################
+Save a checkpoint by commiting
+###########################################
+exit
+docker ps -a
+docker commit <container_id> new_image_name:tag_name(optional)
+
+
+
+###########################################
+Docker exit the running detached container
+###########################################
+docker ps -a
+docker stop <container_id>
+
+
+
+
+###########################################
+Run the previously exited container
+###########################################
+docker ps -a
+docker start <container_id>
+-----------------------------------------
+## now you can open as many terminals and run the following
+-----------------------------------------
+
+docker exec -it <container_id> bash
+
+
+
+
+
+###########################################
+Load a previous docker commit in detached mode/ in background mode
+###########################################
+docker images
+docker run -d -it new_image_name:tag_name
+-----------------------------------------
+## now you can open as many terminals and run the following
+-----------------------------------------
+
+docker exec -it <container_id> bash
+
+
+###########################################
+Copy model weights to/from docker container
+###########################################
+docker cp <host_directory> <container_id>:<container_path>
+
+docker cp /root/FYP_Model_weights/ f4a08fba2d31:/root/
+docker cp f4a08fba2d31:/root/ /root/FYP_Model_weights/
+
+
+
+
+
+docker run -it -p 8888:8888 -p 6006:6006 -v ~/:/host waleedka/modern-deep-learning
+git clone https://github.com/AathmanT/ThEmoBe.git
+cd ThEmoBe/
+chmod +x setup.sh
+./setup.sh
