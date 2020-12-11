@@ -26,7 +26,7 @@ def create_behaviour_model_from_checkpoint():
     if device == 'cuda':
         behaviour_model.load_state_dict(torch.load(CHECK_POINT))
     else:
-        behaviour_model.load_state_dict(torch.load(CHECK_POINT, map_location='cpu'))
+        behaviour_model.load_state_dict(torch.load(CHECK_POINT, map_location=torch.device('cpu')))
 
     final = nn.Sequential(*list(behaviour_model.lstm.final.children())[:3])
     behaviour_model.lstm.final = final
