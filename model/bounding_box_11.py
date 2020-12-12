@@ -54,7 +54,7 @@ def plot_boxes(i, img, x1, x2, y1, y2, prediction_labels, what_to_plot, plot_lab
         # d.text(xy=(x1 + lxc, y1 - lyc), text=label_text, fill=rgb)
     # return img
     # plt.show()
-    fig.savefig("/content/ThEmoBe/output/img" + str(i) + ".png", bbox_inches='tight', transparent=True, pad_inches=0)
+    fig.savefig("/root/ThEmoBe/output/img" + str(i) + ".png", bbox_inches='tight', transparent=True, pad_inches=0)
 
 
 
