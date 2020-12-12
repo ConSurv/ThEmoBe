@@ -121,8 +121,8 @@ def make_video(APP_ROOT, output_video_id, len_frames_list):
 
     img_array = []
     for i in range(len_frames_list):
-        print("Reading " + "/content/ThEmoBe/output/img" + str(i) + ".png")
-        img = cv2.imread("/content/ThEmoBe/output/img" + str(i) + ".png")
+        print("Reading " + "/root/ThEmoBe/output/img" + str(i) + ".png")
+        img = cv2.imread("/root/ThEmoBe/output/img" + str(i) + ".png")
         height, width, layers = img.shape
         size = (width, height)
         img_array.append(img)
