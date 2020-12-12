@@ -10,3 +10,4 @@ keras
 tensorflow
 celery[redis]
 opencv-python==4.1.2.30
+gevent
