@@ -122,10 +122,13 @@ def make_video(APP_ROOT, output_video_id, len_frames_list):
     img_array = []
     for i in range(len_frames_list):
         print("Reading " + "/root/ThEmoBe/output/img" + str(i) + ".png")
-        img = cv2.imread("/root/ThEmoBe/output/img" + str(i) + ".png")
-        height, width, layers = img.shape
-        size = (width, height)
-        img_array.append(img)
+        try:
+            img = cv2.imread("/root/ThEmoBe/output/img" + str(i) + ".png")
+            height, width, layers = img.shape
+            size = (width, height)
+            img_array.append(img)
+        except Exception as e:
+            print(e)
 
     out = cv2.VideoWriter(target + output_video_id + ".avi", cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
 
