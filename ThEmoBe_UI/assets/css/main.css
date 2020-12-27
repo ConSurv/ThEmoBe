@@ -4948,4 +4948,32 @@
 		  border-left: 6px solid transparent;
 		  border-right: 6px solid transparent;
 		  border-bottom: 6px solid #be2626; }
-  
+
+		  
+.loader_div{
+	position: absolute;
+	top: -200%;
+	bottom: -100%;
+	left: 0;
+	right: 20%;
+	/* height: 100%; */
+    /* width: 100%; */
+	z-index: 99;
+	opacity:0.7;
+	display:none;
+	background: url("C:\\xampp\\htdocs\\ThEmoBe_UI\\assets\\css\\kOnzy.gif") center center no-repeat;
+}
+/* #loading {
+    background: url('spinner.gif') no-repeat center center;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 9999999;
+} */
+.banner_half {
+	padding: 0;
+	min-height: 50vh;
+	height: 50vh !important;
+}
