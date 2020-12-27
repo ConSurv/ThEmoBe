@@ -54,7 +54,7 @@ def plot_boxes(i, img, x1, x2, y1, y2, prediction_labels, what_to_plot, plot_lab
         # d.text(xy=(x1 + lxc, y1 - lyc), text=label_text, fill=rgb)
     # return img
     # plt.show()
-    fig.savefig("/content/ThEmoBe/output/img" + str(i) + ".png", bbox_inches='tight', transparent=True, pad_inches=0)
+    fig.savefig("/root/ThEmoBe/output/img" + str(i) + ".png", bbox_inches='tight', transparent=True, pad_inches=0)
 
 
 
@@ -121,10 +121,14 @@ def make_video(APP_ROOT, output_video_id, len_frames_list):
 
     img_array = []
     for i in range(len_frames_list):
-        img = cv2.imread("/content/ThEmoBe/output/img" + str(i) + ".png")
-        height, width, layers = img.shape
-        size = (width, height)
-        img_array.append(img)
+        print("Reading " + "/root/ThEmoBe/output/img" + str(i) + ".png")
+        try:
+            img = cv2.imread("/root/ThEmoBe/output/img" + str(i) + ".png")
+            height, width, layers = img.shape
+            size = (width, height)
+            img_array.append(img)
+        except Exception as e:
+            print(e)
 
     out = cv2.VideoWriter(target + output_video_id + ".avi", cv2.VideoWriter_fourcc(*'DIVX'), 15, size)
 

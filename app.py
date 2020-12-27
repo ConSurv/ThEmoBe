@@ -10,17 +10,19 @@ from flask import Flask, send_file
 from flask import request, jsonify
 from flask_api import status
 from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
+from flask_celery import make_celery
+
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy import Table, create_engine
 from sqlalchemy import create_engine, MetaData, Table, Column
 
 from annotation_pipeline import annotateVideo
 from config import Config
-import models
+from flask_sqlalchemy import SQLAlchemy
+
 from pollingManager import handlePolling
-from model.load_behaviour_model_from_checkpoint_2 import *
-from model.loading_emotion_model_7 import *
+# from model.load_behaviour_model_from_checkpoint_2 import *
+# from model.loading_emotion_model_7 import *
 
 
 
@@ -28,33 +30,59 @@ app = Flask(__name__)
 
 app.config.from_object(Config)
 db = SQLAlchemy(app)
+
+class Tasks(db.Model):
+    __tablename__ = 'tasks_table'
+    id = db.Column(db.String(128), primary_key=True)
+    themobe_id = db.Column(db.String(128),index=True, unique=True)
+    expires_in = db.Column(db.BigInteger)
+    interval= db.Column(db.BigInteger)
+    last_polled_time = db.Column(db.BigInteger)
+    download_allocation_time = db.Column(db.BigInteger)
+    download_req_id = db.Column(db.String(128),index=True, unique=True)
+    task_status = db.Column(db.String(100))
+    download_count = db.Column(db.Integer)
+    persistent_status = db.Column(db.Boolean)
+
+    def __repr__(self):
+        # return '<Tasks {}>'.format(self.themobe_id)
+        return "<Tasks(theombe_id='%s', interval='%s', task_status='%s')>" % (self.themobe_id, self.interval, self.task_status)
+        # return '<Tasks %r>' % self.themobe_id'
+
+    def getExpiresin(self):
+        return self.expires_in
+
+db.create_all()
+
 migrate = Migrate(app, db)
 # db.init_app(app)
 # db.create_all()
 
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 # app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////tmp/test.db'
+celery = make_celery(app)
+
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 DEFAULT_EXPIRES_IN = 900  # In sec
 DEFAULT_POLLING_INTERVAL = 2  # In sec
 DEFAULT_PERSISTENT_STATUS = True
 
-behaviour_model, emotion_model = None, None
-print("dgssdhfffdjdjjdjjjdfjdsj")
+# behaviour_model, emotion_model = None, None
+# print("dgssdhfffdjdjjdjjjdfjdsj")
 
-@app.before_first_request
-def do_something_only_once():
-    global behaviour_model, emotion_model
+# @app.before_first_request
+# def do_something_only_once():
+#     global behaviour_model, emotion_model
 
-    print("111111111111111111111111111111111111111111111111111111111111")
-    behaviour_model = create_behaviour_model_from_checkpoint()
+    # print("111111111111111111111111111111111111111111111111111111111111")
+    # behaviour_model = create_behaviour_model_from_checkpoint()
 
-    emotion_model = create_emotion_model_from_checkpoint()
+    # emotion_model = create_emotion_model_from_checkpoint()
 
-    print("222222222222222222222222222222222222222222222222222222222222")
+    # print("222222222222222222222222222222222222222222222222222222222222")
 
-    print("3333333333333333333 Initialized models 3333333333333333333333333333333333333333333")
+    # print("3333333333333333333 Initialized models 3333333333333333333333333333333333333333333")
 
 @app.route("/annotate", methods=["POST"])
 def annotate():
@@ -120,7 +148,7 @@ def annotate():
     # Saving task details to database and call annotation
     last_polled_time = int(round(time.time() * 1000))
     hashed_id = str(uuid.uuid4())
-    task = models.Tasks(id=hashed_id, themobe_id=str(id), expires_in=requested_expiry,
+    task = Tasks(id=hashed_id, themobe_id=str(id), expires_in=requested_expiry,
                         interval=DEFAULT_POLLING_INTERVAL,last_polled_time=last_polled_time,
                         task_status="PROCESSING",download_count=0,persistent_status=persistent_status)
     db.session.add(task)
@@ -130,19 +158,25 @@ def annotate():
     asyncio.set_event_loop(loop)
     # asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
     # annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
-    annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id), behaviour_model, emotion_model)
     # result=asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
     # Need to be asyncr
-
+    celery_annotate.delay(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id)
+    print("Job sent to celery")
     response = {"themobe_id": id, "video": filename, "video_status": "processing", "expires_in": requested_expiry,
                 "interval": DEFAULT_POLLING_INTERVAL}
     return jsonify(response)
 
+
+@celery.task(name='app.celery_annotate')
+def celery_annotate(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id):
+    annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id)
+    print("++++++++++++++++ celery got the work ++++++++++++++++")
+
 async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
     # await asyncio.sleep(20)
     print("commited changes")
-    task = db.session.query(models.Tasks)
-    task = task.filter(models.Tasks.themobe_id == id)
+    task = db.session.query(Tasks)
+    task = task.filter(Tasks.themobe_id == id)
     record = task.one()
     current_time = int(round(time.time() * 1000))
     record.task_status = "ANNOTATED"
@@ -152,18 +186,19 @@ async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, 
     print("commited changes")
     return "sucessfull"
 
+
 @app.route("/poll")
 def polling():
     if 'themobe_id' in request.args:
         id = request.args.get('themobe_id')
-        if (db.session.query(models.Tasks).filter_by(themobe_id=id).scalar()) is None:
+        if (db.session.query(Tasks).filter_by(themobe_id=id).scalar()) is None:
             response = {"error_id": "Unauthorized Request", "error_message": "'themobe_id' does not exist"}
             return jsonify(response), status.HTTP_401_UNAUTHORIZED
 
         else:
             # task = models.Tasks.query().filter(models.Tasks.themobe_id == id).first()
-            task = db.session.query(models.Tasks)
-            task = task.filter(models.Tasks.themobe_id == id)
+            task = db.session.query(Tasks)
+            task = task.filter(Tasks.themobe_id == id)
             record = task.one()
             current_time = int(round(time.time() * 1000))
             interval = record.interval
@@ -226,14 +261,14 @@ def downloadFile():
 
     if 'download_req_id' in request.args:
         download_req_id = request.args.get('download_req_id')
-        if (db.session.query(models.Tasks).filter_by(download_req_id=download_req_id).scalar()) is None:
+        if (db.session.query(Tasks).filter_by(download_req_id=download_req_id).scalar()) is None:
             response = {"error_id": "Unauthorized Request", "error_message": "'download_req_id' does not exist"}
             return jsonify(response), status.HTTP_401_UNAUTHORIZED
 
         else:
             # task = models.Tasks.query().filter(models.Tasks.themobe_id == id).first()
-            task = db.session.query(models.Tasks)
-            task = task.filter(models.Tasks.download_req_id == download_req_id)
+            task = db.session.query(Tasks)
+            task = task.filter(Tasks.download_req_id == download_req_id)
             record = task.one()
             task_status = record.task_status
             download_count=record.download_count
@@ -307,5 +342,5 @@ def downloadFile():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
 

@@ -19,9 +19,14 @@ def create_behaviour_model_from_checkpoint():
     )
 
 
-    CHECK_POINT = "/content/drive/My Drive/Model/ConvLSTM_240.pth"
-    behaviour_model.load_state_dict(torch.load(CHECK_POINT))
+    CHECK_POINT = "/root/FYP_Model_weights/ConvLSTM_240.pth"
 
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+    if device == 'cuda':
+        behaviour_model.load_state_dict(torch.load(CHECK_POINT))
+    else:
+        behaviour_model.load_state_dict(torch.load(CHECK_POINT, map_location=torch.device('cpu')))
 
     final = nn.Sequential(*list(behaviour_model.lstm.final.children())[:3])
     behaviour_model.lstm.final = final

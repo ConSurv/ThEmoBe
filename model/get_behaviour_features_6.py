@@ -1,11 +1,13 @@
 import numpy as np
 import torch
 from torch.autograd import Variable
+from model.load_behaviour_model_from_checkpoint_2 import *
 
+behaviour_model = create_behaviour_model_from_checkpoint()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-def get_behaviour_features(behaviour_model,cropped_image_sequence_behaviour):
+def get_behaviour_features(cropped_image_sequence_behaviour):
 
     behaviour_features = np.empty((0,1024))
 

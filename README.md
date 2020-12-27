@@ -12,8 +12,13 @@ The research was conducted of a group of three people
 * M. Kayathiri 
 * C. VivekVinushanth
 
-under the supervision of:
+Under the supervision of:
 * Prof.Damminda Alahakoon (Supervisor)
 * Mrs.Vishaka Nanayakkara (Staff Supervisor)
 * Dr.Daswin de Silva (Supervisor)
 * Eng. Rashmika Nawaratne (Mentor)
+
+Code obtained from  
+https://github.com/eriklindernoren/Action-Recognition.git  
+https://github.com/razmik/self-learning-algorithm.git
+

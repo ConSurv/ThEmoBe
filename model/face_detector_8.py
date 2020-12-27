@@ -1,10 +1,13 @@
 import cv2
 import numpy as np
+from model.loading_emotion_model_7 import *
 
+
+emotion_model = create_emotion_model_from_checkpoint()
 
 def cropFaceDNN(cropped_behaviour_img):
-    prototxt = "/content/ThEmoBe/deep-learning-face-detection/deploy.prototxt.txt"
-    model = "/content/ThEmoBe/deep-learning-face-detection/res10_300x300_ssd_iter_140000.caffemodel"
+    prototxt = "/root/ThEmoBe/deep-learning-face-detection/deploy.prototxt.txt"
+    model = "/root/ThEmoBe/deep-learning-face-detection/res10_300x300_ssd_iter_140000.caffemodel"
     CONFIDENCE = 0.5
 
     # load our serialized model from disk
@@ -80,7 +83,8 @@ def detect_face(cropped_image_sequence_for_emotion):
 
     return detected_face
 
-def get_emotion_features(emotion_model,detected_face):
+def get_emotion_features(detected_face):
+    print("inside get emotion feature")
     emotion_features = emotion_model.predict(detected_face.reshape(1,128,128,3))
-
+    print("done predicting emotion feature")
     return emotion_features
