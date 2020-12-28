@@ -1,50 +1,11 @@
-# ssh -L 5000:localhost:5000 -t <username>@<server ip> -p <port> "cd /content/ThEmoBe/ ; bash"
-# Example shown below
-
-ssh root@4.tcp.ngrok.io -p 17969
-
-ssh -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 17969 "cd /content/ThEmoBe/ ; bash"
-
-ssh -o "StrictHostKeyChecking no" -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
-
-
-
-
-
-########################################
-run these in 3 separate terminals
-########################################
-
-1st terminal - start flask backend
-----------------------------------
-ssh -o "StrictHostKeyChecking no" -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
-python3 app.py
-
-
-2nd terminal - run celery worker
---------------------------------
-ssh -o "StrictHostKeyChecking no" -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
-export LC_ALL=C.UTF-8
-export LANG=C.UTF-8
-# nohup celery -A app.celery worker --pool gevent --loglevel=debug &
-nohup celery -A app.celery worker --pool gevent &
-
-tail -f nohup.out
-
-
-3rd terminal - do ssh tunneling
--------------------------------
-ssh -o "StrictHostKeyChecking no" -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
-
-########################################
-
-
 ###########################################
 Run using docker for the first time
 ###########################################
 
 #docker pull waleedka/modern-deep-learning
-docker pull ufoym/deepo:cpu
+#docker pull ufoym/deepo:cpu
+docker pull kayathirim/deepo:fyp
+
 docker images
 docker images -a
 
@@ -61,9 +22,32 @@ docker exec -it <container_id> bash
 
 
 
+########################################
+run these in 3 separate terminals
+########################################
+
+1st terminal - start flask backend
+----------------------------------
+
+python3 app.py
+
+
+2nd terminal - run celery worker
+--------------------------------
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+# nohup celery -A app.celery worker --pool gevent --loglevel=debug &
+celery -A app.celery worker --pool gevent
+
+#tail -f nohup.out
+
+
+
+
+
 
 ###########################################
-Save a checkpoint by commiting
+Save a docker checkpoint by commiting
 ###########################################
 exit
 docker ps -a
@@ -112,7 +96,9 @@ Copy model weights to/from docker container
 ###########################################
 docker cp <host_directory> <container_id>:<container_path>
 
+From Windows to Container
 docker cp /root/FYP_Model_weights/ f4a08fba2d31:/root/
+From Container to Windows
 docker cp f4a08fba2d31:/root/ /root/FYP_Model_weights/
 
 
@@ -124,3 +110,17 @@ git clone https://github.com/AathmanT/ThEmoBe.git
 cd ThEmoBe/
 chmod +x setup.sh
 ./setup.sh
+
+
+
+# For ssh connections(Optional)
+# ssh -L 5000:localhost:5000 -t <username>@<server ip> -p <port> "cd /content/ThEmoBe/ ; bash"
+# Example shown below
+
+ssh root@4.tcp.ngrok.io -p 17969
+
+ssh -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 17969 "cd /content/ThEmoBe/ ; bash"
+
+ssh -o "StrictHostKeyChecking no" -L 5000:localhost:5000 -t root@4.tcp.ngrok.io -p 15517 "cd /content/ThEmoBe/ ; bash"
+
+

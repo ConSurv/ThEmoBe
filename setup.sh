@@ -49,4 +49,4 @@ export LANG=C.UTF-8
 
 echo | redis-server &
 
-
+pip3 install gevent
