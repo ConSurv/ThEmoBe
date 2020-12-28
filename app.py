@@ -160,15 +160,8 @@ def annotate():
     # annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, str(id))
     # result=asyncio.ensure_future(annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,str(id)))
     # Need to be asyncr
-    celery_annotate.delay(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id)
+    celery_annotate.delay(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id, db, Tasks)
     print("Job sent to celery")
-
-    # modify database
-    task = db.session.query(Tasks)
-    task = task.filter(Tasks.download_req_id == id)
-    record = task.one()
-    record.task_status = "ANNOTATED"
-    db.session.commit()
 
     response = {"themobe_id": id, "video": filename, "video_status": "processing", "expires_in": requested_expiry,
                 "interval": DEFAULT_POLLING_INTERVAL}
