@@ -108,14 +108,6 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
         plot_bounding_boxes(predictions, frames_list[-1 * mini_chunk_size:], coordinates_array[-1 * mini_chunk_size:], what_to_plot, chunks+1)
 
     make_video(APP_ROOT, video_id, len(frames_list))
-
-    # modify database
-    task = db.session.query(Tasks)
-    task = task.filter(Tasks.download_req_id == id)
-    record = task.one()
-    record.task_status = "ANNOTATED"
-    db.session.commit()
-
     return "Video annotated successfully!"
 
 

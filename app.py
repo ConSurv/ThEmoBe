@@ -173,19 +173,33 @@ def celery_annotate(APP_ROOT, video_file, emo_annotation, behav_annotation, thre
     annotateVideo(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation, id)
     print("++++++++++++++++ celery got the work ++++++++++++++++")
 
-async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
-    # await asyncio.sleep(20)
-    print("commited changes")
-    task = db.session.query(Tasks)
-    task = task.filter(Tasks.themobe_id == id)
-    record = task.one()
-    current_time = int(round(time.time() * 1000))
-    record.task_status = "ANNOTATED"
-    record.download_allocation_time = current_time
-    record.download_req_id = str(uuid.uuid4())
-    db.session.commit()
-    print("commited changes")
-    return "sucessfull"
+    # modify database
+    try:
+        task = db.session.query(Tasks)
+        task = task.filter(Tasks.download_req_id == id)
+        record = task.one()
+        current_time = int(round(time.time() * 1000))
+        record.task_status = "ANNOTATED"
+        record.download_allocation_time = current_time
+        record.download_req_id = str(uuid.uuid4())
+        db.session.commit()
+        print("Database annotated for completeion")
+    except:
+        print("Error in updating annotation completion")
+
+# async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
+#     # await asyncio.sleep(20)
+#     print("commited changes")
+#     task = db.session.query(Tasks)
+#     task = task.filter(Tasks.themobe_id == id)
+#     record = task.one()
+#     current_time = int(round(time.time() * 1000))
+#     record.task_status = "ANNOTATED"
+#     record.download_allocation_time = current_time
+#     record.download_req_id = str(uuid.uuid4())
+#     db.session.commit()
+#     print("commited changes")
+#     return "sucessfull"
 
 
 @app.route("/poll")
