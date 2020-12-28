@@ -176,7 +176,7 @@ def celery_annotate(APP_ROOT, video_file, emo_annotation, behav_annotation, thre
     # modify database
     try:
         task = db.session.query(Tasks)
-        task = task.filter(Tasks.download_req_id == id)
+        task = task.filter(Tasks.themobe_id == id)
         record = task.one()
         current_time = int(round(time.time() * 1000))
         record.task_status = "ANNOTATED"
