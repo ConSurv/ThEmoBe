@@ -183,6 +183,7 @@ def celery_annotate(APP_ROOT, video_file, emo_annotation, behav_annotation, thre
     record.download_allocation_time = current_time
     record.download_req_id = str(uuid.uuid4())
     db.session.commit()
+    task = db.session.query(Tasks)
     task = task.filter(Tasks.themobe_id == id)
     record = task.one()
     print(record)
