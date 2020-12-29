@@ -183,6 +183,9 @@ def celery_annotate(APP_ROOT, video_file, emo_annotation, behav_annotation, thre
     record.download_allocation_time = current_time
     record.download_req_id = str(uuid.uuid4())
     db.session.commit()
+    task = task.filter(Tasks.themobe_id == id)
+    record = task.one()
+    print(record)
     print("Database annotated for completeion")
 
 # async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
@@ -263,9 +266,9 @@ def polling():
 #     return 1
 #
 def manageDownload(id, APP_ROOT):
-    path = "/".join([APP_ROOT, "output"])
+    path = "/".join([APP_ROOT, "annotated_output"])
     # print(path)
-    video = path + '/' + id + '.mp4'
+    video = path + '/' + id + '.avi'
 
     return send_file(video, as_attachment=True)
 
