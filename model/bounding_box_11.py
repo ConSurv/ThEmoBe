@@ -71,7 +71,7 @@ behaviour_label_dictionary = {
     "0" : "Quarrel",
     "1" : "Mourn",
     "2" : "Scream",
-    "3" : "Excitemet",
+    "3" : "Excitement",
     "4" : "Laugh",
     "5" : "Physical Force",
     "6" : "Pinch",
