@@ -5,6 +5,16 @@ from model.face_detector_8 import *
 from Parallel_GSOM_for_HAAP.create_gsom_objects import *
 from model.bounding_box_11 import *
 
+import sys
+
+
+def sizeof_fmt(num, suffix='B'):
+    ''' by Fred Cirera,  https://stackoverflow.com/a/1094933/1870254, modified'''
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return "%3.1f %s%s" % (num, unit, suffix)
+        num /= 1024.0
+    return "%.1f %s%s" % (num, 'Yi', suffix)
 
 
 def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat_annotation, video_id):
@@ -107,6 +117,15 @@ def annotateVideo(APP_ROOT, video_path, emo_annotation, behav_annotation, threat
         plot_bounding_boxes(predictions, frames_list[-1 * mini_chunk_size:], coordinates_array[-1 * mini_chunk_size:], what_to_plot, chunks+1)
 
     make_video(APP_ROOT, video_id, len(frames_list))
+
+    print("=============== Memory usage ====================")
+
+    for name, size in sorted(((name, sys.getsizeof(value)) for name, value in locals().items()),
+                             key=lambda x: -x[1])[:10]:
+        print("{:>30}: {:>8}".format(name, sizeof_fmt(size)))
+
+    print("=================================================")
+    
     return "Video annotated successfully!"
 
 
