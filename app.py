@@ -194,18 +194,20 @@ def celery_annotate(APP_ROOT, video_file, emo_annotation, behav_annotation, thre
     print("++++++++++++++++ celery got the work ++++++++++++++++")
 
     # modify database
-    try:
-        task = db.session.query(Tasks)
-        task = task.filter(Tasks.download_req_id == id)
-        record = task.one()
-        current_time = int(round(time.time() * 1000))
-        record.task_status = "ANNOTATED"
-        record.download_allocation_time = current_time
-        record.download_req_id = str(uuid.uuid4())
-        db.session.commit()
-        print("Database annotated for completeion")
-    except:
-        print("Error in updating annotation completion")
+    task = db.session.query(Tasks)
+    task = task.filter(Tasks.themobe_id == id)
+    record = task.one()
+    print(record)
+    current_time = int(round(time.time() * 1000))
+    record.task_status = "ANNOTATED"
+    record.download_allocation_time = current_time
+    record.download_req_id = str(uuid.uuid4())
+    db.session.commit()
+    task = db.session.query(Tasks)
+    task = task.filter(Tasks.themobe_id == id)
+    record = task.one()
+    print(record)
+    print("Database annotated for completeion")
 
 # async def annotateAsync(APP_ROOT, video_file, emo_annotation, behav_annotation, threat_annotation,id):
 #     # await asyncio.sleep(20)
@@ -285,9 +287,9 @@ def polling():
 #     return 1
 #
 def manageDownload(id, APP_ROOT):
-    path = "/".join([APP_ROOT, "output"])
+    path = "/".join([APP_ROOT, "annotated_output"])
     # print(path)
-    video = path + '/' + id + '.mp4'
+    video = path + '/' + id + '.avi'
 
     return send_file(video, as_attachment=True)
 

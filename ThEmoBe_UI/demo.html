@@ -1,0 +1,158 @@
+<html>
+    <head>
+        <title>
+            Demo
+        </title>
+        <script>
+                // demo5
+                function myFunction() {
+                    document.getElementById("demo5").innerHTML = "Paragraph changed.";
+                }
+        </script>
+    </head>
+    <body>
+        <h1>
+            Demo
+        </h1>
+
+        <!-- Demo1 -->
+        <button type="button"
+            onclick="document.getElementById('demo1').innerHTML = Date()">
+            Click me to display Date and Time.</button>
+
+            <p id="demo1"></p>
+
+        <hr>
+        <!-- Demo 2 
+        can put double or single quotes
+        -->
+        <p id="demo2">JavaScript can change HTML content.</p>
+        <button type="button" onclick='document.getElementById("demo2").innerHTML = "Hello JavaScript!"'>Click Me!</button>
+
+        <hr>
+
+        <!-- Demo 3 -->
+        <p id="demo3">JavaScript can change the style of an HTML element.</p>
+        <button type="button" onclick="document.getElementById('demo3').style.fontSize='35px'">Click Me!</button>
+        <hr>
+
+
+        <!-- Demo 4 
+        script in head block
+        -->
+        <p id="demo4"></p>
+        <script>
+            document.getElementById("demo4").innerHTML = "My First JavaScript";
+        </script>
+
+        <hr>
+
+        <!-- demo5 -->
+        <p id="demo5">A Paragraph</p>
+        <button type="button" onclick="myFunction()">Try it</button>
+        <hr>
+
+
+        <!-- demo6 -->
+        <p id="title">Let’s Learn DOM </p>
+        <p id="demo6"></p>
+        <script>
+        var x = document.getElementById("title");
+        document.getElementById("demo6").innerHTML="The value of element is " + x.innerHTML;
+        </script>
+        <hr>
+
+        <!-- EVENTS -->
+
+
+        <!-- HTML events are "things" that happen to HTML elements. -->
+        <!-- When JavaScript is used in HTML pages, JavaScript can "react" on these events. -->
+        <!-- check demo1 -->
+
+        <!-- demo7 -->
+        <button onclick="this.innerHTML=Date()">The time is?</button>
+
+        <hr>
+        <!-- demo 8 -->
+        <button onclick="displayDate()">The time is?</button>
+
+                <script>
+                function displayDate() {
+                document.getElementById("demo8").innerHTML = Date();
+                }
+                </script>
+        <p id="demo8"></p>
+
+        <hr>
+
+        <!-- Event handlers can be used to handle, and verify, user input, user actions, and browser actions: -->
+
+        <!-- demo 9 -->
+        <button id="myBtn">click</button>
+        <script>
+        document.getElementById("myBtn").addEventListener("click", hello);
+        function hello() {
+            alert ("Hello World!");
+            }
+        </script>
+
+        <hr>
+
+        <!-- demo 10 -->
+        <button id="myBtn10">click</button>
+        <script>
+        document.getElementById("myBtn10").addEventListener("click", hello);
+        document.getElementById("myBtn10").addEventListener("click", hello1);
+        function hello() {
+            alert ("Hello World!");
+        }
+        function hello1() {
+            alert ("Hello 1 World!");
+        }
+        </script>
+
+        <hr>
+
+        <!-- demo11 -->
+        <script>document.write(Date());</script>
+
+        <hr>
+
+
+        <!-- demo12 -->
+        Information about this document.<br>
+            <script type="text/javascript">
+            document.write("<br>Title: ",document.title);
+            document.write("<br>Referrer: ",document.referrer);
+            document.write("<br>Domain: ",document.domain);
+            document.write("<br>URL: ",document.URL);
+            </script>
+
+        <hr>
+        <!-- demo 13 -->
+        <div id="myID">
+            <p id="p1">This is a paragraph.</p>
+        </div>
+        <script>
+            var p = document.createElement("p"); //creates a new <p> element
+            var node = document.createTextNode("Newly created"); // To add text to the <p> element
+            p.appendChild(node); //append the text node to the <p> element
+            var element = document.getElementById("myID");
+            element.appendChild(p); //append the new element to an existing element
+            </script>
+
+        <hr>
+
+        <!-- demo 14 -->
+        <div>
+            <p id="p14">This is a paragraph.</p>
+            <p id="p24">This is another paragraph.</p>
+          </div>
+          
+          <script>
+          var elmnt = document.getElementById("p14");
+          elmnt.remove();
+          </script>
+          
+    </body>
+</html>

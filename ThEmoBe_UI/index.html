@@ -11,29 +11,23 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<script src="dropzone-5.7.0\dist\dropzone.js"></script>
+		<style>
+			/* #div{
+				display: none;
+			} */
+		</style>
 	</head>
 
 	<Script>
 		var setInterval;
 		var download_req_id=123;
 
-
-		// download file
-		// function downloadFile(){
-		// 	// var url = 'http://127.0.0.1:5000/download?download_req_id='+download_req_id
-		// 	var url = 'http://127.0.0.1:5000/download'
-		// 	var xmlhttp = new XMLHttpRequest()
-		// 	xmlhttp.open('GET', url, true)
-			
-		// 	xmlhttp.onreadystatechange = function() {
-		// 		if (this.readyState === 4 && this.status === 200) {
-		// 			var response = this.responseText;
-		// 			console.log(this.responseText)
-		// 			var file = window.URL.createObjectURL(response.blob);
-    	// 			window.location.assign(file);
-		// 		}
-		// 	}
-		// 	xmlhttp.send()
+		// show download button
+		// function show(divId) { 
+        //     $("#" + divId).show(); 
+		// } 
+		// function hide(){
+		// 	document.getElementById('image').style.display = "none";
 		// }
 
 		// Polling method
@@ -47,38 +41,33 @@
 					console.log(this.responseText)
 					var response = this.responseText;
 					var json = JSON.parse(response);
-					// document.getElementById("downloadReqId").innerHTML=("ErrorResponse  : "+this.responseText)
 
 				}else if (this.readyState === 4 && this.status === 401) {
 					console.log(this.responseText)
 					var response = this.responseText;
 					var json = JSON.parse(response);
-					// document.getElementById("downloadReqId").innerHTML=("ErrorResponse  : "+this.responseText)
 
 				}else {
-					// jQuery(".loader_div").hide();
 					var response = this.responseText;
 					var json = JSON.parse(response);
-					if (response.includes("download_req_id")){
-						download_req_id = json.download_req_id
 
-						let link = document.getElementById("link");
-						link.href = link.href + download_req_id;
-						console.log("href"+link.href)
-						console.log("id "+download_req_id)
+					if (response.includes("download_req_id")){
+						download_req_id = json.download_req_id;
+						document.getElementById("id_status").innerHTML=("Successfully Annotated your video!!! ");	
+						document.getElementById("button").disabled = false;
+						// show('div'); 
+						
 						clearInterval(setinterval);
+
+						
 					}
-					document.getElementById("status").innerHTML = ("Completed Annotating Video");
-					document.getElementById("downloadReqId").innerHTML=("Successfully Annotated : "+ json.download_req_id);	
-					console.log(this.responseText);
+					
 				}
 			};
 			xmlhttp.send();
 
 		};
-
-
-
+		
 		// Uploading method
 		function uploadFile() {
 			var emo = document.getElementById('emo')
@@ -106,12 +95,11 @@
 				var response = this.responseText;
 				var json = JSON.parse(response);
 				var themobe_id = json.themobe_id
-				document.getElementById("uploadResponse").innerHTML=("Video uploaded successfully with id : " + themobe_id);
-				document.getElementById("status").innerHTML = ("Processing your video...");
-				setinterval= setInterval(function(){poll(themobe_id)},5000);
+				document.getElementById("id_status").innerHTML=("Processing your video.   Please wait...");
+
+				setinterval= setInterval(function(){poll(themobe_id)},10000);
 			}
 			else if (xhr.readyState == 4 && xhr.status != 200) {
-				// jQuery(".loader_div").hide();
 				console.log(this.responseText)
 			}
 		  }
@@ -120,7 +108,6 @@
 		  if(emo.checked==true) { formData.append("emo","True") } else {formData.append("emo","False")}
 		  if(emo.checked==true) { formData.append("behav","True") } else {formData.append("behav","False")}
 		  if(emo.checked==true) { formData.append("threat","True") } else {formData.append("threat","False")}
-		//   jQuery(".banner_half").hide();
 		  jQuery(".loader_div").show();
 		  xhr.send(formData)
 
@@ -151,28 +138,16 @@
 				<article>
 					<img src="images/ThEmoBe.jpg" alt="" />
 					<div class="inner">
-						<header>
-							<!-- <p>Annotation Engine for Emotion, Behavior & Threat Level</p> -->
-							<!-- <h2>ThEmoBe</h2> -->
-						</header>
 					</div>
 				</article>
 				<article>
 					<img src="images/emotion.jpeg" alt="" />
 					<div class="inner">
-						<header>
-							<!-- <p>Annotation Engine for Emotion, Behavior & Threat Level</p> -->
-							<!-- <h2>ThEmoBe</h2> -->
-						</header>
 					</div>
 				</article>
 				<article>
 					<img src="images/behav_recognition.jpg"  alt="" />
 					<div class="inner">
-						<header>
-							<!-- <p>Annotation Engine for Emotion, Behavior & Threat Level</p> -->
-							<!-- <h2>ThEmoBe</h2> -->
-						</header>
 					</div>
 				</article>
 				<article>
@@ -184,15 +159,6 @@
 						</header>
 					</div>
 				</article>
-				<!-- <article>
-					<img src="images/slide05.jpg"  alt="" />
-					<div class="inner">
-						<header>
-							<p>Annotation Engine for Emotion, Behavior & Threat Level</p>
-							<h2>ThEmoBe</h2>
-						</header>
-					</div>
-				</article> -->
 			</section>
 
 		<!-- One -->
@@ -201,18 +167,9 @@
 					<div class="grid-style">
 						<div>
 							<div class="box"> 
-								<div id=banner_half class="banner half"> 
-									<article>
-										<img src="images/annotation.png" alt="" />
-										<div class="inner">
-										</div>
-									</article>
-									<article>
-										<img src="images/behav_recognition.jpg" alt="" />
-										<div class="inner">
-										</div>
-									</article>
-								</div>	
+								<div class="image fit">
+									<img src="images/annotatevideo.jpg" alt="" />
+								</div>
 								<h2 style = "position:relative; left:150px; top:20px; font-weight: bold;">
 									Annotate Video
 								</h2>
@@ -222,9 +179,6 @@
 									<hr>
 	
 									<div style = "position:relative; left:100px; top:0px;">
-									<!-- <header class="align-center"> -->
-									<!-- </header> -->
-									<!-- <div class="6u 12u$(small)"> -->
 										<input type="checkbox" id="emo" name="emo" value="emo">
 										<label for="emo">Emotion </label>
 									<!-- </div> -->
@@ -246,43 +200,28 @@
 						</div>
 						<div>
 							<div class="box">
-								<div id=banner_half class="banner half"> 
-									<article>
-										<img src="images/annotation.png" alt="" />
-										<div class="inner">
-										</div>
-									</article>
-									<article>
-										<img src="images/slide02.jpg" alt="" />
-										<div class="inner">
-										</div>
-									</article>
+								<div class="image fit">
+									<img src="images/download.jpg" alt="" />
 								</div>
 								<h2 style = "position:relative; left:100px; top:20px; font-weight: bold;">
 									Download Annotated Video
 								</h2>
 								<hr>
-								<p id="status"></p>
-								<p class="log" id="uploadResponse"></p>
-								<p class="log" id="downloadReqId"></p>
-
-								<div class="content" style = "position:relative; left:200px; top:50px;">
-									<!-- <div id="loader_div" class="loader_div"></div> -->
-									<!-- <img src="images/loader2.gif"> -->
-									<br><br><br><br>
-								</div> 
+								
 								<footer class="align-center">
-									<div class="content" style = "position:relative; left:20; top:10;">
-										<!-- <a id="link" href="http://127.0.0.1:5000/download?download_req_id=123">Download</a> -->
-										<button type="submit" >
-										<a href="http://127.0.0.1:5000/download"
-										 onclick="location.href=this.href+'?download_req_id='+download_req_id;return false;">  
+									<img src="images/laugh.jpg" width="138" height="138">
+									<div id="id_status">
+										<b>You can download the annotated video here</b>
+									</div>
+									
+									<div class="content" style = "position:relative; top:-20px;">
+										<button type="submit" id ="button" disabled>
+										<a href="http://127.0.0.1:5000/download" onclick="location.href=this.href+'?download_req_id='+download_req_id;return false;">  
 											 Download 
 										</a> 
 										</button>
-										<!-- <button type="submit" name="download" id="download" onclick="downloadFile()">DOWNLOAD</button> -->
 									</div>
-								</footer>
+								</footer> 
 							</div>																																																	
 						</div>
 					</div>

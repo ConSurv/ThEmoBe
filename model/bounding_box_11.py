@@ -114,7 +114,7 @@ def plot_bounding_boxes(predictions, frames_list, coordinates_array, what_to_plo
 
 
 def make_video(APP_ROOT, output_video_id, len_frames_list):
-    target = "/".join([APP_ROOT, "annotated_output"])
+    target = "/".join([APP_ROOT, "annotated_output/"])
 
     if not os.path.isdir(target):
         os.mkdir(target)
