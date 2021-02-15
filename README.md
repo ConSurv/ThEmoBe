@@ -25,7 +25,9 @@ Alternatively the Deep Learning Docker Image kayathirim/deepo:fyp have all these
 
 ## How to run
 Instructions can be found in the how_to_run.txt file  
-  
+ 
+## API Docs
+See API_Documentation.pdf file
 
 Code obtained from  
 https://github.com/eriklindernoren/Action-Recognition.git  
